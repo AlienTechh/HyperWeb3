@@ -43,27 +43,27 @@
         
         .status-bar { position: absolute; top: 0; width: 100%; height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 0 25px; box-sizing: border-box; color: white; font-size: 12px; font-weight: 600; z-index: 3500; }
 
-        .control-center { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(30px); z-index: 2500; transform: translateY(-100%); transition: transform 0.5s var(--ios-spring); display: flex; flex-direction: column; align-items: center; padding-top: 100px; gap: 15px; }
+        .control-center { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); z-index: 2500; transform: translateY(-100%); transition: transform 0.5s var(--ios-spring); display: flex; flex-direction: column; align-items: center; padding-top: 100px; gap: 15px; }
         .cc-open { transform: translateY(0); }
-        .cc-slider-box { width: 220px; background: rgba(255,255,255,0.15); padding: 20px; border-radius: 28px; color: white; text-align: center; }
-        .cc-btn { width: 220px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 20px; color: white; font-weight: 600; text-align: center; cursor: pointer; }
+        .cc-slider-box { width: 220px; background: rgba(255,255,255,0.15); padding: 20px; border-radius: 28px; color: white; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .cc-btn { width: 220px; padding: 15px; background: rgba(255,255,255,0.15); border-radius: 20px; color: white; font-weight: 600; text-align: center; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); }
 
         .screen-off { position: absolute; width: 100%; height: 100%; background: #000; z-index: 4000; transition: opacity 0.4s; cursor: pointer; opacity: 0; pointer-events: none; }
         .screen-is-off { opacity: 1; pointer-events: auto; }
 
         .wallpaper { position: absolute; width: 100%; height: 100%; background: #1a3a5a url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop') center/cover; transition: transform 0.8s var(--ios-spring), filter 0.5s; z-index: 1; transform: scale(1.1); }
         
-        .lockscreen { position: absolute; width: 100%; height: 100%; z-index: 500; display: flex; flex-direction: column; align-items: center; padding-top: 80px; color: white; transition: transform 0.7s var(--ios-spring), opacity 0.4s; }
+        .lockscreen { position: absolute; width: 100%; height: 100%; z-index: 3000; display: flex; flex-direction: column; align-items: center; padding-top: 80px; color: white; transition: transform 0.7s var(--ios-spring), opacity 0.4s; pointer-events: none; }
         .lock-time { font-size: 64px; font-weight: 200; }
 
-        .pin-pad { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); z-index: 600; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .pin-pad { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); z-index: 3100; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
         .pin-dots { display: flex; gap: 15px; margin-bottom: 40px; }
         .dot { width: 12px; height: 12px; border: 1.5px solid #fff; border-radius: 50%; }
         .dot.active { background: #fff; transform: scale(1.2); }
         .num-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
         .num-btn { width: 65px; height: 65px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; justify-content: center; align-items: center; font-size: 28px; cursor: pointer; }
 
-        .fingerprint-scanner { margin-top: auto; margin-bottom: 100px; width: 70px; height: 70px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; display: none; justify-content: center; align-items: center; font-size: 32px; animation: pulse 2s infinite; z-index: 600; }
+        .fingerprint-scanner { margin-top: auto; margin-bottom: 100px; width: 70px; height: 70px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; display: none; justify-content: center; align-items: center; font-size: 32px; animation: pulse 2s infinite; pointer-events: auto; }
 
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.3); } 70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
 
@@ -83,34 +83,17 @@
         /* Multitasking System */
         .multitasking-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 80; display: none; }
         .recents-view .multitasking-overlay { display: block; }
-
-        .recents-view .app { 
-            transform: scale(0.65) translateY(-40px) !important; 
-            opacity: 1 !important; 
-            pointer-events: none !important; /* Prevents clicking items inside settings */
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-        }
-        .recents-view .app-card-trigger { 
-            position: absolute; top: 10%; left: 15%; width: 70%; height: 70%; 
-            z-index: 110; display: none; cursor: pointer; 
-        }
+        .recents-view .app { transform: scale(0.65) translateY(-40px) !important; opacity: 1 !important; pointer-events: none !important; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+        .recents-view .app-card-trigger { position: absolute; top: 10%; left: 15%; width: 70%; height: 70%; z-index: 110; display: none; cursor: pointer; }
         .recents-view .app-card-trigger { display: block; }
-
         .recents-view .wallpaper { transform: scale(0.9) !important; filter: blur(15px); }
-        
-        /* Close All Button */
-        #closeAllBtn { 
-            position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); 
-            width: 50px; height: 50px; background: rgba(255,255,255,0.2); 
-            backdrop-filter: blur(10px); border-radius: 50%; color: white; 
-            display: none; justify-content: center; align-items: center; 
-            font-size: 20px; font-weight: bold; border: 1px solid rgba(255,255,255,0.3); z-index: 3600; 
-        }
+        #closeAllBtn { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); width: 50px; height: 50px; background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 50%; color: white; display: none; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; border: 1px solid rgba(255,255,255,0.3); z-index: 3600; }
         .recents-view #closeAllBtn { display: flex; }
 
         .is-unlocked .wallpaper { transform: scale(1); }
         .is-unlocked .drag-btn { opacity: 1; transform: scale(1); }
         .is-unlocked .lockscreen { transform: translateY(-100%); opacity: 0; }
+        .is-unlocked .lockscreen * { pointer-events: none; }
         .open .app { transform: scale(1); opacity: 1; pointer-events: auto; }
         .open .wallpaper { filter: blur(25px); transform: scale(1.15) !important; }
     </style>
@@ -137,7 +120,7 @@
                 <input type="range" min="0.1" max="1" step="0.1" value="1" oninput="changeBrightness(this.value)" style="width:100%;">
             </div>
             <div class="cc-btn" onclick="toggleDarkMode()">🌓 Appearance: <span id="mode-text">Light</span></div>
-            <div style="color:white; font-weight:600; margin-top:20px; cursor:pointer; opacity:0.7" onclick="toggleCC(false)">Done</div>
+            <div class="cc-btn" style="background:rgba(255,255,255,0.1); margin-top:10px;" onclick="toggleCC(false)">Done</div>
         </div>
 
         <div class="screen-off" id="blackOverlay"></div>
@@ -204,14 +187,13 @@
     </div>
 
     <script>
-        const phone = document.getElementById('phone'), blackOverlay = document.getElementById('blackOverlay'), wallpaper = document.getElementById('mainWallpaper');
-        let isPowerOn = true, isDragging = false, activePin = null, currentPinInput = "";
+        const phone = document.getElementById('phone'), blackOverlay = document.getElementById('blackOverlay'), wallpaper = document.getElementById('mainWallpaper'), ccPanel = document.getElementById('ccPanel');
+        let isPowerOn = true, activePin = null, currentPinInput = "";
         let homeTimer;
 
-        // MULTITASKING LOGIC
         function handleHomeStart() {
             homeTimer = setTimeout(() => {
-                if (isPowerOn && phone.classList.contains('is-unlocked') && phone.classList.contains('open')) {
+                if (isPowerOn && phone.classList.contains('is-unlocked') && phone.classList.contains('open') && !ccPanel.classList.contains('cc-open')) {
                     phone.classList.add('recents-view');
                 }
             }, 600);
@@ -224,19 +206,9 @@
             }
         }
 
-        function exitRecentsToApp() {
-            phone.classList.remove('recents-view');
-        }
-
-        function exitRecentsToHome() {
-            phone.classList.remove('recents-view');
-            phone.classList.remove('open');
-        }
-
-        function killAllApps() {
-            phone.classList.remove('open');
-            phone.classList.remove('recents-view');
-        }
+        function exitRecentsToApp() { phone.classList.remove('recents-view'); }
+        function exitRecentsToHome() { phone.classList.remove('recents-view'); phone.classList.remove('open'); }
+        function killAllApps() { phone.classList.remove('open'); phone.classList.remove('recents-view'); }
 
         function toggleDarkMode() {
             const body = document.getElementById('mainBody');
@@ -251,7 +223,6 @@
                 activePin = p;
                 document.getElementById('createPinBtn').style.display = 'none';
                 document.getElementById('turnOffPinBtn').style.display = 'flex';
-                alert("PIN set successfully");
             }
         }
         function turnOffPin() { activePin = null; document.getElementById('createPinBtn').style.display = 'flex'; document.getElementById('turnOffPinBtn').style.display = 'none'; }
@@ -260,9 +231,8 @@
             if(currentPinInput.length < 4) {
                 currentPinInput += num; updatePinDots();
                 if(currentPinInput.length === 4) {
-                    if(currentPinInput === activePin) { 
-                        phone.classList.add('is-unlocked'); closePinPad(); 
-                    } else {
+                    if(currentPinInput === activePin) { phone.classList.add('is-unlocked'); closePinPad(); } 
+                    else {
                         const status = document.getElementById('pinStatus');
                         status.innerText = "Incorrect PIN"; status.style.color = "#ff3b30";
                         setTimeout(() => { status.innerText = "Enter Passcode"; status.style.color = "white"; currentPinInput = ""; updatePinDots(); }, 1200);
@@ -278,13 +248,14 @@
             try {
                 const battery = await navigator.getBattery();
                 document.getElementById('battery-level').innerText = Math.floor(battery.level * 100) + "%";
-                battery.addEventListener('levelchange', () => { document.getElementById('battery-level').innerText = Math.floor(battery.level * 100) + "%"; });
             } catch (e) { document.getElementById('battery-level').innerText = "100%"; }
         }
         updateBattery();
 
         function handleDoubleTap(e) {
+            if (e.target.closest('.cc-btn') || e.target.closest('.cc-slider-box') || ccPanel.classList.contains('cc-open')) return;
             if (e.target.classList.contains('drag-btn') || e.target.classList.contains('fingerprint-scanner') || e.target.classList.contains('num-btn')) return;
+            
             if (!isPowerOn) { blackOverlay.classList.remove('screen-is-off'); isPowerOn = true; } 
             else if (!phone.classList.contains('open') && phone.classList.contains('is-unlocked')) { 
                 blackOverlay.classList.add('screen-is-off'); phone.classList.remove('is-unlocked'); isPowerOn = false; toggleCC(false); closePinPad();
@@ -292,6 +263,10 @@
         }
 
         function handleHomeBar() { 
+            if (ccPanel.classList.contains('cc-open')) {
+                toggleCC(false);
+                return;
+            }
             if (phone.classList.contains('recents-view')) {
                 phone.classList.remove('recents-view');
                 return;
@@ -299,11 +274,11 @@
             if (isPowerOn && !phone.classList.contains('is-unlocked')) {
                 if(activePin) document.getElementById('pinPad').style.display = 'flex';
                 else phone.classList.add('is-unlocked');
-            } else { phone.classList.remove('open'); toggleCC(false); } 
+            } else { phone.classList.remove('open'); } 
         }
 
         function setupDrag(e, el, type) {
-            if (!phone.classList.contains('is-unlocked') || phone.classList.contains('open') || phone.classList.contains('recents-view')) return;
+            if (!phone.classList.contains('is-unlocked') || phone.classList.contains('open') || phone.classList.contains('recents-view') || ccPanel.classList.contains('cc-open')) return;
             let moved = false;
             const isTouch = e.type === 'touchstart';
             const startX = isTouch ? e.touches[0].clientX : e.clientX;
@@ -317,25 +292,20 @@
                 if (Math.abs(curX - startX) > 5 || Math.abs(curY - startY) > 5) moved = true;
                 el.style.left = Math.max(10, Math.min(initX + (curX - startX), 210)) + 'px';
                 el.style.top = Math.max(40, Math.min(initY + (curY - startY), 480)) + 'px';
-                if(type === 'settings') {
-                    document.getElementById('settingsApp').style.transformOrigin = (parseInt(el.style.left)+30)+"px "+(parseInt(el.style.top)+30)+"px";
-                }
+                if(type === 'settings') document.getElementById('settingsApp').style.transformOrigin = (parseInt(el.style.left)+30)+"px "+(parseInt(el.style.top)+30)+"px";
             };
 
             const stop = () => { 
                 document.removeEventListener(isTouch ? 'touchmove' : 'mousemove', move); 
                 document.removeEventListener(isTouch ? 'touchend' : 'mouseup', stop); 
-                if (!moved) { 
-                    if(type === 'settings') phone.classList.add('open'); 
-                    else toggleCC(true); 
-                } 
+                if (!moved) { if(type === 'settings') phone.classList.add('open'); else toggleCC(true); } 
             };
             document.addEventListener(isTouch ? 'touchmove' : 'mousemove', move, { passive: false }); 
             document.addEventListener(isTouch ? 'touchend' : 'mouseup', stop);
         }
 
         function changeBrightness(v) { document.documentElement.style.setProperty('--bright', v); }
-        function toggleCC(o) { if(isPowerOn && phone.classList.contains('is-unlocked')) document.getElementById('ccPanel').classList.toggle('cc-open', o); }
+        function toggleCC(o) { if(isPowerOn && phone.classList.contains('is-unlocked')) ccPanel.classList.toggle('cc-open', o); }
         function showPage(n) { document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('p' + n).style.display = 'block'; }
         function setSpd(t) { document.documentElement.style.setProperty('--spd', t); }
         function changeWallpaper(e) { 
