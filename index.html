@@ -80,20 +80,32 @@
 
         .recents-view .drag-btn { opacity: 0 !important; pointer-events: none !important; }
 
-        /* Centering the card */
+        /* Centered Card in Multitasking */
         .recents-view .app.is-running { 
             display: flex !important;
             opacity: 1 !important;
-            transform: scale(0.65) translateY(-20px) !important; 
+            left: 50% !important;
+            top: 45% !important;
+            transform: translate(-50%, -50%) scale(0.65) !important; 
             pointer-events: none !important; 
             box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
             z-index: 105;
-            left: 0; top: 0;
         }
         
-        .app-card-trigger { position: absolute; top: 15%; left: 15%; width: 70%; height: 70%; z-index: 110; display: none; cursor: pointer; }
+        .app-card-trigger { position: absolute; top: 20%; left: 15%; width: 70%; height: 50%; z-index: 110; display: none; cursor: pointer; }
         .recents-view .app.is-running ~ .app-card-trigger { display: block; }
         
+        /* The X button in Multitasking */
+        #kill-app-btn {
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            width: 44px; height: 44px; background: rgba(255,255,255,0.2); 
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border-radius: 50%; color: #ff3b30; font-size: 22px; font-weight: bold;
+            display: none; justify-content: center; align-items: center; 
+            z-index: 120; cursor: pointer; border: 1px solid rgba(255,255,255,0.3);
+        }
+        .recents-view.has-apps #kill-app-btn { display: flex; }
+
         .recents-view .wallpaper { transform: scale(0.9) !important; filter: blur(15px); }
 
         #no-apps-msg { 
@@ -101,12 +113,10 @@
             color: white; font-weight: 600; font-size: 18px; opacity: 0; pointer-events: none; z-index: 90; 
             transition: opacity 0.3s; 
         }
-        /* Only show message if no apps are running */
         .recents-view:not(.has-apps) #no-apps-msg { opacity: 0.7; }
 
         .app { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-app); z-index: 100; transform: scale(0); opacity: 0; pointer-events: none; transition: transform var(--spd) var(--ios-spring), opacity 0.3s; display: flex; flex-direction: column; border-radius: 44px; overflow: hidden; }
-        .header { padding: 50px 20px 15px; font-weight: 700; font-size: 32px; color: var(--text-main); background: var(--bg-app); display: flex; justify-content: space-between; align-items: center; }
-        .close-app-btn { font-size: 20px; cursor: pointer; color: #ff3b30; padding: 5px 10px; font-weight: bold; }
+        .header { padding: 50px 20px 15px; font-weight: 700; font-size: 32px; color: var(--text-main); background: var(--bg-app); }
         .item { padding: 14px 20px; font-size: 17px; border-bottom: 0.5px solid var(--border-color); color: var(--text-main); display: flex; justify-content: space-between; background: var(--bg-item); align-items: center; }
         
         .home-bar { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 120px; height: 5px; background: rgba(255,255,255,0.8); border-radius: 10px; z-index: 3500; cursor: pointer; }
@@ -115,8 +125,7 @@
         .is-unlocked .drag-btn { opacity: 1; transform: scale(1); }
         .is-unlocked .lockscreen { transform: translateY(-100%); opacity: 0; pointer-events: none; }
         
-        /* State: Open vs Running */
-        .open .app { transform: scale(1) !important; opacity: 1 !important; pointer-events: auto !important; z-index: 1000; }
+        .open .app { transform: scale(1) !important; opacity: 1 !important; pointer-events: auto !important; z-index: 1000; left: 0 !important; top: 0 !important; }
         .open .wallpaper { filter: blur(25px); transform: scale(1.15) !important; }
     </style>
 </head>
@@ -180,10 +189,7 @@
         <input type="file" id="file-input" hidden accept="image/*" onchange="changeWallpaper(event)">
 
         <div class="app" id="settingsApp">
-            <div class="header">
-                Settings
-                <div class="close-app-btn" onclick="killApp(event)">✕</div>
-            </div>
+            <div class="header">Settings</div>
             <div id="p1" class="page">
                 <div class="item" onclick="showPage(6)">Screen Lock <span>›</span></div>
                 <div class="item" onclick="showPage(4)">About Phone <span>›</span></div>
@@ -203,6 +209,7 @@
             </div>
         </div>
         
+        <div id="kill-app-btn" onclick="killApp()">✕</div>
         <div class="app-card-trigger" id="cardTrigger" onclick="exitRecentsToApp()"></div>
 
         <div class="home-bar" id="bottomBar" 
@@ -233,7 +240,6 @@
         }
 
         function checkRunningApps() {
-            // "has-apps" controls whether the "No open apps" message shows
             if(settingsApp.classList.contains('is-running')) {
                 phone.classList.add('has-apps');
             } else {
@@ -249,12 +255,10 @@
         function exitRecentsToApp() { phone.classList.remove('recents-view'); phone.classList.add('open'); }
         function exitRecentsToHome() { phone.classList.remove('recents-view'); }
         
-        function killApp(e) {
-            if(e) e.stopPropagation();
+        function killApp() {
             phone.classList.remove('open');
             settingsApp.classList.remove('is-running');
-            phone.classList.remove('recents-view');
-            checkRunningApps();
+            phone.classList.remove('has-apps');
         }
 
         function toggleDarkMode() {
@@ -321,7 +325,6 @@
             if (isPowerOn && !phone.classList.contains('is-unlocked')) {
                 unlockPhone();
             } else { 
-                // Just hide the app, don't kill it
                 phone.classList.remove('open'); 
             } 
         }
@@ -350,7 +353,7 @@
                 if (!moved) { 
                     if(type === 'settings') {
                         phone.classList.add('open');
-                        settingsApp.classList.add('is-running'); // Mark as running for multitasking
+                        settingsApp.classList.add('is-running');
                     } else toggleCC(true); 
                 } 
             };
