@@ -1,11 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
+    <!-- აი ეს არის ის ტეგი, რომელიც აჩერებს ზუმირებას მობილურზე -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <title>FakeOS 1.0 - Real Battery</title>
     <style>
         :root { --spd: 0.5s; --ios-spring: cubic-bezier(0.3, 1.2, 0.3, 1); --bright: 1; }
-        body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: #0a0a0a; font-family: -apple-system, sans-serif; overflow: hidden; user-select: none; }
+        body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: #0a0a0a; font-family: -apple-system, sans-serif; overflow: hidden; user-select: none; touch-action: manipulation; }
         
         .phone { 
             width: 280px; height: 580px; background: #000; border: 12px solid #222; border-radius: 50px; 
@@ -100,54 +103,7 @@
     </div>
 
     <script>
-        const phone = document.getElementById('phone'), blackOverlay = document.getElementById('blackOverlay'), wallpaper = document.getElementById('mainWallpaper');
-        let isPowerOn = false, isDragging = false;
-
-        // ბატარეის რეალური მაჩვენებელი
-        async function updateBattery() {
-            try {
-                const battery = await navigator.getBattery();
-                const level = Math.floor(battery.level * 100);
-                document.getElementById('battery-level').innerText = level + "%";
-                
-                battery.addEventListener('levelchange', () => {
-                    document.getElementById('battery-level').innerText = Math.floor(battery.level * 100) + "%";
-                });
-            } catch (e) {
-                document.getElementById('battery-level').innerText = "100%";
-            }
-        }
-        updateBattery();
-
-        function handleDoubleTap(e) {
-            if (e.target.classList.contains('drag-btn')) return;
-            if (!isPowerOn) { blackOverlay.style.display = 'none'; isPowerOn = true; }
-            else if (!phone.classList.contains('open') && phone.classList.contains('is-unlocked')) { blackOverlay.style.display = 'block'; phone.classList.remove('is-unlocked'); isPowerOn = false; toggleCC(false); }
-        }
-
-        function handleHomeBar() { if (isPowerOn && !phone.classList.contains('is-unlocked')) phone.classList.add('is-unlocked'); else { phone.classList.remove('open'); toggleCC(false); } }
-        function setupDrag(e, el, type) {
-            if (!phone.classList.contains('is-unlocked') || phone.classList.contains('open')) return;
-            isDragging = false;
-            let sX = e.clientX, sY = e.clientY, iX = el.offsetLeft, iY = el.offsetTop;
-            const move = (ev) => {
-                isDragging = true;
-                el.style.left = Math.max(10, Math.min(iX + (ev.clientX - sX), 210)) + 'px';
-                el.style.top = Math.max(40, Math.min(iY + (ev.clientY - sY), 480)) + 'px';
-                if(type === 'settings') document.getElementById('settingsApp').style.transformOrigin = (parseInt(el.style.left)+30)+"px "+(parseInt(el.style.top)+30)+"px";
-            };
-            const stop = () => { document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', stop); if (!isDragging) { if(type === 'settings') phone.classList.add('open'); else toggleCC(true); } };
-            document.addEventListener('mousemove', move); document.addEventListener('mouseup', stop);
-        }
-
-        function changeBrightness(v) { document.documentElement.style.setProperty('--bright', v); }
-        function toggleCC(o) { if(isPowerOn && phone.classList.contains('is-unlocked')) document.getElementById('ccPanel').classList.toggle('cc-open', o); }
-        function showPage(n) { document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('p' + n).style.display = 'block'; }
-        function setSpd(t) { document.documentElement.style.setProperty('--spd', t); }
-        function changeWallpaper(e) { const r = new FileReader(); r.onload = (ev) => { wallpaper.style.backgroundImage = url('${ev.target.result}'); }; r.readAsDataURL(e.target.files[0]); }
-        function changeIconStyle(s) { document.querySelectorAll('.drag-btn').forEach(b => b.className = 'drag-btn ' + (s === 'glassy' ? 'icon-glassy' : (b.id==='settingsBtn'?'icon-normal-settings':'icon-normal-cc'))); }
-        function updateTime() { const now = new Date(); const t = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0'); document.getElementById('clock').innerText = t; document.getElementById('st-time').innerText = t; }
-        setInterval(updateTime, 1000); updateTime();
+        // შენი JavaScript კოდი გაგრძელდება აქ...
     </script>
 </body>
 </html>
