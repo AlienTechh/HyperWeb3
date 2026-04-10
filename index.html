@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RandomOS 1.0 Beta</title>
     <style>
+        :root {
+            --anim-speed: 0.5s; /* Default Normal */
+        }
+
         * { 
             margin: 0; 
             padding: 0; 
@@ -238,7 +242,7 @@
             background-color: #1a1a1a;
             background-image: url('1000005643.jpg');
             background-size: cover; background-position: center;
-            transition: filter 0.5s ease, transform 0.6s cubic-bezier(0.2, 0, 0, 1);
+            transition: filter var(--anim-speed) ease, transform var(--anim-speed) cubic-bezier(0.2, 0, 0, 1);
             z-index: 1;
         }
         .wallpaper.app-active { filter: blur(15px) brightness(0.7); transform: scale(1.1); }
@@ -284,8 +288,8 @@
             pointer-events: none;
             transform: scale(0);
             transition: 
-                transform 0.5s cubic-bezier(0.32, 0.72, 0, 1), 
-                opacity 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+                transform var(--anim-speed) cubic-bezier(0.32, 0.72, 0, 1), 
+                opacity var(--anim-speed) cubic-bezier(0.32, 0.72, 0, 1);
         }
         
         .app-window.open { opacity: 1; transform: scale(1); pointer-events: all; }
@@ -357,6 +361,26 @@
             transition: opacity 0.3s;
             z-index: 9999;
             pointer-events: none;
+        }
+
+        /* DEV OPTIONS UI */
+        .dev-btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .dev-speed-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border-radius: 12px;
+            border: none;
+            background: #e5e5ea;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .dev-speed-btn.active {
+            background: #007aff;
+            color: white;
         }
     </style>
 </head>
@@ -442,9 +466,21 @@
                     <span>About</span>
                     <span>❯</span>
                 </div>
-                <div id="dev-opt-item" class="settings-item" style="display:none;" onclick="alert('Dev Settings Opened')">
+                <div id="dev-opt-item" class="settings-item" style="display:none;" onclick="showSubPage('dev-settings')">
                     <span>Developer Options</span>
                     <span>❯</span>
+                </div>
+            </div>
+
+            <div id="dev-settings" class="app-window">
+                <div class="back-btn" onclick="showSubPage('settings-main')">❮ Back</div>
+                <h1 style="text-align: center; margin-bottom: 10px;">Animation Speed</h1>
+                <p style="text-align: center; color: #8e8e93; font-size: 0.8rem; margin-bottom: 20px;">Adjust the system transition speed</p>
+                
+                <div class="dev-btn-group">
+                    <button class="dev-speed-btn" id="speed-slow" onclick="setAnimSpeed('1.2s', 'slow')">Slow</button>
+                    <button class="dev-speed-btn active" id="speed-normal" onclick="setAnimSpeed('0.5s', 'normal')">Normal</button>
+                    <button class="dev-speed-btn" id="speed-fast" onclick="setAnimSpeed('0.2s', 'fast')">Fast</button>
                 </div>
             </div>
 
@@ -516,6 +552,15 @@
                 setTimeout(() => toast.style.opacity = '0', 2000);
                 document.getElementById('dev-opt-item').style.display = 'flex';
             }
+        }
+
+        // Animation Speed Logic
+        function setAnimSpeed(value, type) {
+            document.documentElement.style.setProperty('--anim-speed', value);
+            
+            // UI Update for buttons
+            document.querySelectorAll('.dev-speed-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('speed-' + type).classList.add('active');
         }
 
         function startPowerTimer(e) {
@@ -652,7 +697,7 @@
         }
 
         function handleBackAction() {
-            const subpages = ['nav-settings', 'custom-page', 'about-page'];
+            const subpages = ['nav-settings', 'custom-page', 'about-page', 'dev-settings'];
             let backProcessed = false;
             subpages.forEach(id => {
                 if(document.getElementById(id).classList.contains('open')) {
