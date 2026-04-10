@@ -313,6 +313,7 @@
             font-weight: 800;
             color: #1c1c1e;
             margin-top: 100px;
+            cursor: pointer;
         }
         .about-footer {
             width: 100%;
@@ -340,11 +341,30 @@
         #unlock-trigger {
             position: absolute; bottom: 0; width: 100%; height: 100%; background: transparent; cursor: pointer;
         }
+
+        /* TOAST NOTIFICATION */
+        #toast {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 9999;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
     <div class="phone">
+        <div id="toast">Developer options enabled</div>
+
         <div class="power-btn" 
              onmousedown="startPowerTimer(event)" 
              onmouseup="endPowerTimer(event)" 
@@ -422,6 +442,10 @@
                     <span>About</span>
                     <span>❯</span>
                 </div>
+                <div id="dev-opt-item" class="settings-item" style="display:none;" onclick="showSubPage('dev-page')">
+                    <span>Developer Options</span>
+                    <span>❯</span>
+                </div>
             </div>
 
             <div id="nav-settings" class="app-window">
@@ -448,12 +472,18 @@
             <div id="about-page" class="app-window">
                 <div class="back-btn" onclick="showSubPage('settings-main')">❮ Back</div>
                 <div id="about-content">
-                    <div class="about-main-text">RandomOS 1.0 Beta</div>
+                    <div class="about-main-text" onclick="handleAboutClick()">RandomOS 1.0 Beta</div>
                     <div class="about-footer">
                         <span>Phone Name</span>
                         <span>rPhone 1 pro</span>
                     </div>
                 </div>
+            </div>
+
+            <div id="dev-page" class="app-window">
+                <div class="back-btn" onclick="showSubPage('settings-main')">❮ Back</div>
+                <h1>Developer Options</h1>
+                <p style="margin-top:20px; color:#666;">You are now a developer.</p>
             </div>
 
             <div id="nav-container">
@@ -476,9 +506,30 @@
         let currentNavMode = 'swipe';
         let powerTimer;
         let pressStartTime;
+        
+        // Developer Options Logic
+        let aboutClickCount = 0;
+        let devOptionsEnabled = false;
 
         const wallpaperLayer = document.getElementById('main-wallpaper');
         const wallpaperInput = document.getElementById('wallpaper-input');
+
+        function handleAboutClick() {
+            if (devOptionsEnabled) return;
+            aboutClickCount++;
+            if (aboutClickCount >= 4) {
+                devOptionsEnabled = true;
+                document.getElementById('dev-opt-item').style.display = 'flex';
+                showToast("Developer options enabled");
+            }
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.innerText = text;
+            toast.style.opacity = '1';
+            setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+        }
 
         function startPowerTimer(e) {
             e.preventDefault();
@@ -508,205 +559,4 @@
             const overlay = document.getElementById('black-overlay');
             
             if (isPhoneSleeping) {
-                overlay.style.display = 'block';
-                setTimeout(() => overlay.style.opacity = '1', 10);
-            } else {
-                resetToLockscreen();
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.style.display = 'none', 800);
-            }
-        }
-
-        function resetToLockscreen() {
-            document.querySelectorAll('.app-window').forEach(win => win.classList.remove('open'));
-            wallpaperLayer.classList.remove('app-active');
-            
-            document.getElementById('home-screen').classList.replace('active', 'hidden');
-            document.getElementById('lock-screen').classList.replace('hidden', 'active');
-            
-            updateNavVisibility();
-        }
-
-        function showPowerMenu() {
-            if (isPhoneSleeping) {
-                isPhoneSleeping = false;
-                const overlay = document.getElementById('black-overlay');
-                overlay.style.opacity = '0';
-                overlay.style.display = 'none';
-                resetToLockscreen();
-            }
-            document.getElementById('power-menu').style.display = 'flex';
-        }
-
-        function closePowerMenu() {
-            document.getElementById('power-menu').style.display = 'none';
-        }
-
-        function systemShutdown() {
-            closePowerMenu();
-            const overlay = document.getElementById('black-overlay');
-            overlay.style.display = 'block';
-            
-            setTimeout(() => {
-                overlay.style.opacity = '1';
-                isCompletelyShutdown = true;
-                isPhoneSleeping = true;
-                document.getElementById('nav-container').style.display = 'none';
-            }, 10);
-        }
-
-        function systemRestart() {
-            closePowerMenu();
-            const overlay = document.getElementById('black-overlay');
-            overlay.style.display = 'block';
-            
-            setTimeout(() => {
-                overlay.style.opacity = '1';
-                isCompletelyShutdown = true;
-                isPhoneSleeping = true;
-                document.getElementById('nav-container').style.display = 'none';
-                
-                setTimeout(bootSystem, 1000);
-            }, 10);
-        }
-
-        function bootSystem() {
-            const bootScreen = document.getElementById('boot-screen');
-            const overlay = document.getElementById('black-overlay');
-            
-            bootScreen.style.display = 'flex';
-            overlay.style.opacity = '0';
-            overlay.style.display = 'none';
-            
-            setTimeout(() => {
-                bootScreen.style.display = 'none';
-                isCompletelyShutdown = false;
-                isPhoneSleeping = false;
-                
-                document.getElementById('nav-container').style.display = 'flex';
-                resetToLockscreen();
-
-                overlay.style.display = 'block';
-                overlay.style.opacity = '1';
-                setTimeout(() => {
-                    overlay.style.opacity = '0';
-                    setTimeout(() => overlay.style.display = 'none', 800);
-                }, 50);
-
-            }, 4500);
-        }
-
-        function openAppWithOrigin(element, id) {
-            const appWindow = document.getElementById(id);
-            const rect = element.getBoundingClientRect();
-            const containerRect = document.querySelector('.screen-container').getBoundingClientRect();
-            const originX = (rect.left + rect.width / 2) - containerRect.left;
-            const originY = (rect.top + rect.height / 2) - containerRect.top;
-            appWindow.style.transformOrigin = `${originX}px ${originY}px`;
-            appWindow.classList.add('open');
-            wallpaperLayer.classList.add('app-active');
-        }
-
-        function toggleCC(show) {
-            if (isPhoneSleeping || isCompletelyShutdown) return;
-            document.getElementById('control-center').classList.toggle('open', show);
-        }
-
-        function toggleCCBtn(id) {
-            document.getElementById(id).classList.toggle('active');
-        }
-
-        function adjustBrightness(val) {
-            const darkness = (100 - val) / 125; 
-            document.getElementById('brightness-overlay').style.opacity = darkness;
-        }
-
-        function setNavStyle(style) {
-            currentNavMode = style;
-            document.getElementById('check-swipe').style.display = style === 'swipe' ? 'block' : 'none';
-            document.getElementById('check-buttons').style.display = style === 'buttons' ? 'block' : 'none';
-            updateNavVisibility();
-        }
-
-        function updateNavVisibility() {
-            const isLocked = document.getElementById('lock-screen').classList.contains('active');
-            const unlocker = document.getElementById('unlock-trigger');
-            const bar = document.getElementById('home-bar');
-            const buttons = document.getElementById('three-buttons');
-
-            if (isLocked) {
-                unlocker.style.display = 'block';
-                bar.style.display = 'none';
-                buttons.style.display = 'none';
-            } else {
-                unlocker.style.display = 'none';
-                bar.style.display = currentNavMode === 'swipe' ? 'block' : 'none';
-                buttons.style.display = currentNavMode === 'buttons' ? 'flex' : 'none';
-            }
-        }
-
-        function handleHomeAction() {
-            if (isPhoneSleeping) return;
-            toggleCC(false);
-            const lockScreen = document.getElementById('lock-screen');
-            if (lockScreen.classList.contains('active')) {
-                lockScreen.classList.replace('active', 'hidden');
-                document.getElementById('home-screen').classList.replace('hidden', 'active');
-            } else {
-                closeAllApps();
-            }
-            updateNavVisibility();
-        }
-
-        function handleBackAction() {
-            if (isPhoneSleeping) return;
-            // UPDATED SUBPAGE LIST TO INCLUDE ABOUT
-            const subpages = ['nav-settings', 'custom-page', 'about-page'];
-            let inSubPage = false;
-            subpages.forEach(id => {
-                if(document.getElementById(id).classList.contains('open')) {
-                    showSubPage('settings-main');
-                    inSubPage = true;
-                }
-            });
-            if(!inSubPage) closeAllApps();
-        }
-
-        function closeAllApps() {
-            document.querySelectorAll('.app-window').forEach(win => win.classList.remove('open'));
-            document.getElementById('home-screen').classList.replace('hidden', 'active');
-            wallpaperLayer.classList.remove('app-active');
-        }
-
-        function showSubPage(id) {
-            document.querySelectorAll('.app-window').forEach(win => {
-                if(win.id !== id) win.classList.remove('open');
-            });
-            const target = document.getElementById(id);
-            target.classList.add('open');
-        }
-
-        function triggerFileSelect() { wallpaperInput.click(); }
-
-        wallpaperInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => { wallpaperLayer.style.backgroundImage = `url(${e.target.result})`; };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function updateTime() {
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
-                            now.getMinutes().toString().padStart(2, '0');
-            document.getElementById('clock-large').innerText = timeStr;
-            document.getElementById('status-time').innerText = timeStr;
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-        updateNavVisibility();
-    </script>
-</body>
-</html>
+                overlay.style.display = 'bloc
