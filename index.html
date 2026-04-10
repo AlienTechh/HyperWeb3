@@ -318,17 +318,16 @@
         .time { font-size: 3.8rem; font-weight: 200; }
         .date { font-size: 1rem; margin-top: -5px; opacity: 0.8; }
 
-        #home-screen { padding: 60px 20px; }
-        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        #home-screen { padding: 60px 20px; position: relative; }
         
-        /* APP STYLES & ANIMATIONS */
+        /* APP STYLES & ABSOLUTE POSITIONING */
         .app { 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             cursor: pointer; 
-            transition: transform 0.1s; 
-            position: relative;
+            position: absolute; /* Changed to absolute to allow free dragging */
+            width: 70px;
         }
         
         .app.jiggle {
@@ -365,8 +364,9 @@
             font-size: 1.6rem; box-shadow: 0 8px 15px rgba(0,0,0,0.3);
             background: white;
         }
-        .app span { color: white; font-size: 0.7rem; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .app span { color: white; font-size: 0.7rem; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.5); text-align: center;}
 
+        /* FIX: Window animation is now just a fade, no "expanding from center" */
         .app-window {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -377,14 +377,11 @@
             padding: 60px 25px;
             opacity: 0; 
             pointer-events: none;
-            transform: scale(0);
-            transition: 
-                transform var(--anim-speed) cubic-bezier(0.32, 0.72, 0, 1), 
-                opacity var(--anim-speed) cubic-bezier(0.32, 0.72, 0, 1),
-                background 0.3s;
+            transform: scale(1); /* Keep scale at 1 to stop center animation */
+            transition: opacity var(--anim-speed) ease, background 0.3s;
         }
         
-        .app-window.open { opacity: 1; transform: scale(1); pointer-events: all; }
+        .app-window.open { opacity: 1; pointer-events: all; }
 
         .settings-item {
             background: var(--card-bg);
@@ -493,9 +490,9 @@
             </div>
 
             <div id="home-screen" class="screen hidden" ondragover="allowDrop(event)" ondrop="dropApp(event)">
-                <div class="app-grid" id="main-app-grid">
                     <div class="app" 
                          id="app-settings"
+                         style="top: 60px; left: 20px;"
                          onmousedown="startAppHold(event, this, false)" 
                          onmouseup="endAppHold(event, this)" 
                          ontouchstart="startAppHold(event, this, false)"
@@ -509,6 +506,7 @@
 
                     <div class="app empty-app" 
                          id="app-empty-1"
+                         style="top: 60px; left: 110px;"
                          onmousedown="startAppHold(event, this, true)" 
                          onmouseup="endAppHold(event, this)" 
                          ontouchstart="startAppHold(event, this, true)"
@@ -523,6 +521,7 @@
 
                     <div class="app empty-app" 
                          id="app-empty-2"
+                         style="top: 60px; left: 200px;"
                          onmousedown="startAppHold(event, this, true)" 
                          onmouseup="endAppHold(event, this)" 
                          ontouchstart="startAppHold(event, this, true)"
@@ -534,7 +533,6 @@
                         <div class="icon" style="background: #E0E0E0;"></div>
                         <span>Empty App 2</span>
                     </div>
-                </div>
             </div>
 
             <div id="empty-app-1" class="app-window">
@@ -640,9 +638,10 @@
         let aboutClicks = 0;
         let isDevMode = false;
 
-        // Long Press Logic Variables
         let appHoldTimer;
         let isHolding = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
 
         const wallpaperLayer = document.getElementById('main-wallpaper');
         const wallpaperInput = document.getElementById('wallpaper-input');
@@ -656,10 +655,8 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // APP HOLD LOGIC (FIXED FOR MOBILE & DRAG)
         function startAppHold(e, el, isEmptyApp) {
             isHolding = true;
-            
             appHoldTimer = setTimeout(() => {
                 if(!isHolding) return;
                 el.setAttribute('draggable', 'true');
@@ -670,7 +667,6 @@
                     const deleteBtn = el.querySelector('.delete-btn');
                     if(deleteBtn) deleteBtn.style.display = 'flex';
                 }, 800); 
-
             }, 800);
         }
 
@@ -679,32 +675,98 @@
             clearTimeout(appHoldTimer);
         }
 
-        // DRAG AND DROP LOGIC
+        // DRAG LOGIC: Captures where you clicked the icon to prevent jumping
         function dragApp(e) {
             e.dataTransfer.setData("text", e.target.id);
+            const rect = e.target.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left;
+            dragOffsetY = e.clientY - rect.top;
         }
 
         function allowDrop(e) {
             e.preventDefault();
         }
 
+        // DROP LOGIC: Places app at exact coordinates
         function dropApp(e) {
             e.preventDefault();
             const data = e.dataTransfer.getData("text");
             const draggedApp = document.getElementById(data);
-            const grid = document.getElementById('main-app-grid');
+            const homeScreen = document.getElementById('home-screen');
+            const homeRect = homeScreen.getBoundingClientRect();
+
+            // Calculate new position relative to the screen
+            let newX = e.clientX - homeRect.left - dragOffsetX;
+            let newY = e.clientY - homeRect.top - dragOffsetY;
+
+            draggedApp.style.left = newX + 'px';
+            draggedApp.style.top = newY + 'px';
+        }
+
+        function openAppWithOrigin(el, windowId) {
+            // Prevent opening if jiggling (editing mode)
+            if(el.classList.contains('jiggle')) return;
             
-            // Basic logic: move the app to the end of the grid or target
-            if(e.target.closest('.app')) {
-                 grid.insertBefore(draggedApp, e.target.closest('.app'));
+            document.querySelectorAll('.app-window').forEach(win => win.classList.remove('open'));
+            document.getElementById(windowId).classList.add('open');
+            wallpaperLayer.classList.add('app-active');
+            updateNavVisibility();
+        }
+
+        function handleHomeAction() {
+            if (isPhoneSleeping || isCompletelyShutdown) return;
+            
+            const lock = document.getElementById('lock-screen');
+            const home = document.getElementById('home-screen');
+            
+            if (lock.classList.contains('active')) {
+                lock.classList.add('lock-unlocking');
+                setTimeout(() => {
+                    lock.classList.replace('active', 'hidden');
+                    home.classList.replace('hidden', 'active');
+                    home.classList.add('home-opening');
+                    updateNavVisibility();
+                }, 300);
             } else {
-                 grid.appendChild(draggedApp);
+                // Exit editing mode
+                document.querySelectorAll('.app').forEach(a => {
+                    a.classList.remove('jiggle');
+                    a.removeAttribute('draggable');
+                    const del = a.querySelector('.delete-btn');
+                    if(del) del.style.display = 'none';
+                });
+                
+                // Close all windows
+                document.querySelectorAll('.app-window').forEach(win => win.classList.remove('open'));
+                wallpaperLayer.classList.remove('app-active');
+            }
+        }
+
+        function updateNavVisibility() {
+            const isLockActive = document.getElementById('lock-screen').classList.contains('active');
+            const bar = document.getElementById('home-bar');
+            const btns = document.getElementById('three-buttons');
+            const trigger = document.getElementById('unlock-trigger');
+
+            if (isLockActive) {
+                bar.style.display = 'none';
+                btns.style.display = 'none';
+                trigger.style.display = 'block';
+            } else {
+                trigger.style.display = 'none';
+                if (currentNavMode === 'swipe') {
+                    bar.style.display = 'block';
+                    btns.style.display = 'none';
+                } else {
+                    bar.style.display = 'none';
+                    btns.style.display = 'flex';
+                }
             }
         }
 
         function deleteApp(e, el) {
             e.preventDefault();
-            e.stopImmediatePropagation(); // CRITICAL: Stop the app from opening
+            e.stopPropagation();
             const appElement = el.closest('.app');
             appElement.style.transform = "scale(0)";
             appElement.style.opacity = "0";
@@ -822,88 +884,29 @@
         }
 
         function closePowerMenu() { document.getElementById('power-menu').style.display = 'none'; }
-
+        
         function systemShutdown() {
             closePowerMenu();
+            isCompletelyShutdown = true;
             const overlay = document.getElementById('black-overlay');
             overlay.style.display = 'block';
-            setTimeout(() => {
-                overlay.style.opacity = '1';
-                isCompletelyShutdown = true;
-                isPhoneSleeping = true;
-                document.getElementById('nav-container').style.display = 'none';
-            }, 10);
-        }
-
-        function systemRestart() {
-            closePowerMenu();
-            systemShutdown();
-            setTimeout(bootSystem, 1500);
+            overlay.style.opacity = '1';
         }
 
         function bootSystem() {
-            const bootScreen = document.getElementById('boot-screen');
-            const overlay = document.getElementById('black-overlay');
-            bootScreen.style.display = 'flex';
-            overlay.style.opacity = '0';
-            overlay.style.display = 'none';
+            isCompletelyShutdown = false;
+            const boot = document.getElementById('boot-screen');
+            boot.style.display = 'flex';
             setTimeout(() => {
-                bootScreen.style.display = 'none';
-                isCompletelyShutdown = false;
-                isPhoneSleeping = false;
-                document.getElementById('nav-container').style.display = 'flex';
-                resetToLockscreen();
-            }, 4500);
+                boot.style.display = 'none';
+                toggleSleep();
+                toggleSleep();
+            }, 5000);
         }
 
-        function openAppWithOrigin(element, id) {
-            if(element.classList.contains('jiggle')) return;
-            
-            document.getElementById(id).classList.add('open');
-            wallpaperLayer.classList.add('app-active');
-        }
-
-        function handleHomeAction() {
-            if (isPhoneSleeping) return;
-            const lock = document.getElementById('lock-screen');
-            const home = document.getElementById('home-screen');
-
-            if (lock.classList.contains('active')) {
-                lock.classList.add('lock-unlocking');
-                setTimeout(() => {
-                    lock.classList.replace('active', 'hidden');
-                    home.classList.replace('hidden', 'active');
-                    home.classList.add('home-opening');
-                    updateNavVisibility();
-                }, 400);
-            } else {
-                document.querySelectorAll('.app-window').forEach(win => win.classList.remove('open'));
-                wallpaperLayer.classList.remove('app-active');
-                // Exit edit mode on home
-                document.querySelectorAll('.app').forEach(a => {
-                    a.classList.remove('jiggle');
-                    a.removeAttribute('draggable');
-                    const del = a.querySelector('.delete-btn');
-                    if(del) del.style.display = 'none';
-                });
-            }
-        }
-
-        function updateNavVisibility() {
-            const isLocked = document.getElementById('lock-screen').classList.contains('active');
-            document.getElementById('unlock-trigger').style.display = isLocked ? 'block' : 'none';
-            if (!isLocked) {
-                if (currentNavMode === 'swipe') {
-                    document.getElementById('home-bar').style.display = 'block';
-                    document.getElementById('three-buttons').style.display = 'none';
-                } else {
-                    document.getElementById('home-bar').style.display = 'none';
-                    document.getElementById('three-buttons').style.display = 'flex';
-                }
-            } else {
-                document.getElementById('home-bar').style.display = 'none';
-                document.getElementById('three-buttons').style.display = 'none';
-            }
+        function systemRestart() {
+            systemShutdown();
+            setTimeout(bootSystem, 1000);
         }
 
         function setNavStyle(style) {
@@ -914,34 +917,32 @@
         }
 
         function toggleCC(show) {
-            document.getElementById('control-center').classList.toggle('open', show);
+            const cc = document.getElementById('control-center');
+            if (show) cc.classList.add('open'); else cc.classList.remove('open');
         }
 
-        function toggleCCBtn(id) {
-            document.getElementById(id).classList.toggle('active');
-        }
-
-        function adjustBrightness(val) {
-            document.getElementById('brightness-overlay').style.opacity = (1 - val/100) * 0.8;
-        }
-
+        function toggleCCBtn(id) { document.getElementById(id).classList.toggle('active'); }
+        function adjustBrightness(val) { document.getElementById('brightness-overlay').style.opacity = (100 - val) / 100; }
         function triggerFileSelect() { wallpaperInput.click(); }
-        wallpaperInput.onchange = e => {
+
+        wallpaperInput.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = event => wallpaperLayer.style.backgroundImage = `url(${event.target.result})`;
-                reader.readAsDataURL(file);
+                const url = URL.createObjectURL(file);
+                wallpaperLayer.style.backgroundImage = `url(${url})`;
             }
         };
 
         function handleBackAction() {
-            const openWin = document.querySelector('.app-window.open');
-            if (openWin) openWin.classList.remove('open');
-            if (!document.querySelector('.app-window.open')) wallpaperLayer.classList.remove('app-active');
+             const openWin = document.querySelector('.app-window.open');
+             if(openWin && openWin.id !== 'settings-main' && openWin.id !== 'empty-app-1' && openWin.id !== 'empty-app-2') {
+                 showSubPage('settings-main');
+             } else {
+                 handleHomeAction();
+             }
         }
+        function handleRecentAction() { alert("Recents not implemented in Beta"); }
 
-        function handleRecentAction() { console.log("Recent Apps triggered"); }
     </script>
 </body>
 </html>
