@@ -1,1 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NovaOS V12 | Pro Edition</title>
+    <style>
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            font-family: 'Segoe UI', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        body { 
+            background: #121212; display: flex; justify-content: center; 
+            align-items: center; height: 100vh; overflow: hidden;
+        }
 
+        .phone {
+            width: 300px; height: 620px; background: #000;
+            border: 10px solid #222; border-radius: 45px;
+            position: relative; box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        .screen-container {
+            width: 100%; height: 100%; border-radius: 35px;
+            overflow: hidden; position: relative; background: #1a1a1a; /* Dark fallback */
+        }
+
+        /* STATUS BAR */
+        .status-bar {
+            position: absolute; top: 0; width: 100%; height: 35px;
+            padding: 0 20px; display: flex; justify-content: space-between;
+            align-items: center; z-index: 4500; color: white;
+            font-size: 0.75rem; font-weight: 600;
+        }
+
+        .status-right { display: flex; align-items: center; gap: 5px; }
+        .battery-icon {
+            width: 20px; height: 10px; border: 1px solid white;
+            border-radius: 2px; position: relative;
+        }
+        .battery-icon::after {
+            content: ''; position: absolute; right: -3px; top: 2px;
+            width: 2px; height: 4px; background: white;
+        }
+        .battery-level {
+            position: absolute; left: 1px; top: 1px;
+            height: 6px; width: 75%; background: white;
+        }
+
+        .punch-hole {
+            position: absolute; top: 12px; left: 50%;
+            transform: translateX(-50%); width: 18px; height: 18px;
+            background: #000; border-radius: 50%; z-index: 5000;
+        }
+
+        .power-btn {
+            position: absolute; right: -15px; top: 120px;
+            width: 8px; height: 50px; background: #ff3b30;
+            border-radius: 0 5px 5px 0; cursor: pointer; z-index: 5500;
+        }
+
+        /* OVERLAYS */
+        #brightness-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; opacity: 0; pointer-events: none; z-index: 4000;
+        }
+
+        #flashlight-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; opacity: 0; pointer-events: none; z-index: 4100;
+            transition: opacity 0.2s;
+        }
+
+        #black-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 5500; display: none;
+        }
+
+        /* CONTROL CENTER */
+        #control-center {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(25px);
+            z-index: 4800; transform: translateY(-100%);
+            transition: transform 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
+            padding: 60px 20px; display: flex; flex-direction: column; gap: 20px;
+        }
+        #control-center.open { transform: translateY(0); }
+
+        .cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cc-btn {
+            background: rgba(255,255,255,0.1); padding: 15px; border-radius: 18px;
+            color: white; font-size: 0.8rem; display: flex; 
+            justify-content: center; align-items: center; gap: 10px; cursor: pointer;
+        }
+        .cc-btn.active { background: #007aff; }
+
+        .cc-slider {
+            background: rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; color: white;
+        }
+        .cc-slider input { width: 100%; margin-top: 10px; cursor: pointer; }
+
+        .status-trigger {
+            position: absolute; top: 0; right: 0; width: 40%; height: 40px;
+            z-index: 4600; cursor: pointer;
+        }
+
+        /* WALLPAPER */
+        .wallpaper {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%); /* Blue gradient if image fails */
+            background-image: url('1000005643.jpg'); background-size: cover;
+            background-position: center; transition: 0.5s; z-index: 1;
+        }
+        .wallpaper.app-active { filter: blur(15px); transform: scale(1.15); }
+
+        .screen {
+            position: absolute; width: 100%; height: 100%; z-index: 5;
+            transition: 0.3s;
+        }
+
+        .hidden { opacity: 0; pointer-events: none; transform: scale(0.95); }
+        .active { opacity: 1; pointer-events: all; transform: scale(1); }
+
+        #lock-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .time-large { font-size: 3.5rem; font-weight: 300; }
+
+        #home-screen { padding: 60px 15px; }
+        .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .app { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: white; font-size: 0.65rem; }
+        .icon { width: 50px; height: 50px; border-radius: 14px; margin-bottom: 5px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; background: #fff; color: #000; }
+
+        .app-window {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f2f2f7; z-index: 1000; opacity: 0; transform: scale(0.1); 
+            pointer-events: none; transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding: 60px 20px;
+        }
+        .app-window.open { opacity: 1; transform: scale(1); pointer-events: all; }
+
+        #home-bar {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: 110px; height: 5px; background: rgba(255,255,255,0.7);
+            border-radius: 10px; z-index: 5600; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone">
+        <div class="power-btn" onclick="togglePower()"></div>
+
+        <div class="screen-container">
+            <div class="status-bar">
+                <div id="status-time">00:00</div>
+                <div class="status-right">
+                    <span>LTE</span>
+                    <div class="battery-icon"><div class="battery-level"></div></div>
+                </div>
+            </div>
+
+            <div class="status-trigger" onclick="toggleCC(true)"></div>
+            <div class="punch-hole"></div>
+            
+            <div id="black-overlay"></div>
+            <div id="brightness-overlay"></div>
+            <div id="flashlight-overlay"></div>
+            
+            <div class="wallpaper" id="main-wallpaper"></div>
+
+            <div id="control-center">
+                <div class="cc-grid">
+                    <div class="cc-btn" id="wifi-btn" onclick="toggleCCBtn('wifi-btn')">📶 Wi-Fi</div>
+                    <div class="cc-btn" id="bt-btn" onclick="toggleCCBtn('bt-btn')">🔹 Bluetooth</div>
+                    <div class="cc-btn" id="flash-btn" onclick="toggleFlash()">🔦</div>
+                </div>
+                <div class="cc-slider">
+                    <label style="font-size: 0.8rem;">Darkness</label>
+                    <input type="range" min="0" max="90" value="0" oninput="adjustBrightness(this.value)">
+                </div>
+                <div style="flex-grow:1; display:flex; align-items:flex-end; justify-content:center; padding-bottom:20px; color:white; font-size:1.5rem; cursor:pointer;" onclick="toggleCC(false)">︿</div>
+            </div>
+
+            <div id="lock-screen" class="screen active">
+                <div class="time-large" id="clock-large">00:00</div>
+                <div style="opacity: 0.8;">Friday, April 10</div>
+            </div>
+
+            <div id="home-screen" class="screen hidden">
+                <div class="app-grid">
+                    <div class="app" onclick="openApp('settings-main')">
+                        <div class="icon">⚙️</div>
+                        <span>Settings</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings-main" class="app-window">
+                <h2>Settings</h2>
+                <p style="margin-top:20px; color:#666;">NovaOS Build 12.0</p>
+                <button onclick="closeAllApps()" style="margin-top:20px; padding:10px;">Close App</button>
+            </div>
+
+            <div id="home-bar" onclick="handleBarClick()"></div>
+        </div>
+    </div>
+
+    <script>
+        let isPhoneOff = false;
+        let isFlashOn = false;
+
+        function toggleCC(show) {
+            if (isPhoneOff) return;
+            document.getElementById('control-center').classList.toggle('open', show);
+        }
+
+        function toggleCCBtn(id) {
+            document.getElementById(id).classList.toggle('active');
+        }
+
+        function toggleFlash() {
+            isFlashOn = !isFlashOn;
+            document.getElementById('flash-btn').classList.toggle('active');
+            document.getElementById('flashlight-overlay').style.opacity = isFlashOn ? '0.9' : '0';
+        }
+
+        function adjustBrightness(val) {
+            document.getElementById('brightness-overlay').style.opacity = val / 100;
+        }
+
+        function handleBarClick() {
+            if (isPhoneOff) return;
+            toggleCC(false);
+            const lock = document.getElementById('lock-screen');
+            if (lock.classList.contains('active')) {
+                lock.classList.replace('active', 'hidden');
+                document.getElementById('home-screen').classList.replace('hidden', 'active');
+            } else {
+                closeAllApps();
+            }
+        }
+
+        function openApp(id) {
+            document.getElementById(id).classList.add('open');
+            document.getElementById('main-wallpaper').classList.add('app-active');
+        }
+
+        function closeAllApps() {
+            document.querySelectorAll('.app-window').forEach(win => win.classList.remove('open'));
+            document.getElementById('main-wallpaper').classList.remove('app-active');
+        }
+
+        function togglePower() {
+            isPhoneOff = !isPhoneOff;
+            document.getElementById('black-overlay').style.display = isPhoneOff ? 'block' : 'none';
+            if (!isPhoneOff) {
+                closeAllApps();
+                document.getElementById('home-screen').classList.replace('active', 'hidden');
+                document.getElementById('lock-screen').classList.replace('hidden', 'active');
+            }
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock-large').innerText = time;
+            document.getElementById('status-time').innerText = time;
+        }
+        setInterval(updateTime, 1000); updateTime();
+    </script>
+</body>
+</html>
