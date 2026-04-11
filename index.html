@@ -49,7 +49,7 @@
             color: white; border-radius: 43px;
         }
 
-        /* Home Screen - App moved to left */
+        /* Home Screen */
         #homescreen {
             background: linear-gradient(180deg, #121212 0%, #000 100%);
             padding-top: 60px;
@@ -75,39 +75,38 @@
             font-size: 20px; background: linear-gradient(#444, #222);
         }
 
-        /* Settings App - Fixed Animation */
+        /* Settings App - FIXES APPLIED HERE */
         #settings-app {
             display: flex; 
             background: #000; 
             z-index: 40;
-            /* Using a slower 0.8s for both opening and closing */
-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                        opacity 0.5s ease, 
-                        visibility 0.8s;
+            overflow: hidden; /* FIX: Prevents the sub-page from peeking out */
+            transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        opacity 0.4s ease;
             transform: scale(0); 
             opacity: 0; 
-            visibility: hidden; 
             pointer-events: none;
-            transform-origin: 40px 100px; /* Aligned with left icon position */
+            transform-origin: 40px 100px; 
         }
 
         #settings-app.open {
             transform: scale(1);
             opacity: 1;
-            visibility: visible;
             pointer-events: auto;
         }
 
         .settings-content-wrapper {
-            display: flex; width: 200%; height: 100%;
-            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; 
+            width: 200%; 
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .settings-page { width: 50%; height: 100%; display: flex; flex-direction: column; }
 
         .settings-header {
             padding: 50px 20px 20px; font-size: 24px; font-weight: bold;
-            display: flex; align-items: center; min-height: 40px;
+            display: flex; align-items: center;
         }
 
         .back-btn { font-size: 16px; color: #007aff; cursor: pointer; margin-right: 10px; }
@@ -157,7 +156,7 @@
                 <div class="app-grid">
                     <div class="app-container" onclick="openSettings()">
                         <div class="app-icon">⚙️</div>
-                        <p style="font-size: 10px; margin-top: 5px;">Settings</p>
+                        <p style="font-size: 10px; margin-top: 5px; color: white;">Settings</p>
                     </div>
                 </div>
             </div>
@@ -170,7 +169,6 @@
                             <div class="settings-item" onclick="goToAbout()">About Phone <span>></span></div>
                         </div>
                     </div>
-
                     <div class="settings-page">
                         <div class="settings-header">
                             <span class="back-btn" onclick="goBackToSettings()">❮ Back</span>
@@ -200,6 +198,7 @@
                 home.style.display = 'none';
                 homeBar.style.display = 'none';
                 isUnlocked = false;
+                setTimeout(goBackToSettings, 700);
             } else {
                 lock.style.display = 'flex';
                 homeBar.style.display = 'block';
@@ -210,8 +209,8 @@
         function handleHomeBar() {
             const settings = document.getElementById('settings-app');
             if (settings.classList.contains('open')) {
-                settings.classList.remove('open'); // Triggers the reverse zoom
-                setTimeout(goBackToSettings, 800); // Reset nav after it closes
+                settings.classList.remove('open');
+                setTimeout(goBackToSettings, 700); 
             } else if (isPowerOn && !isUnlocked) {
                 isUnlocked = true;
                 document.getElementById('lockscreen').style.display = 'none';
