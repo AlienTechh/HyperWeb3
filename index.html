@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RandomOS 1.0 Beta - Official Site</title>
+    <title>RandomOS 1.0 Beta</title>
     <style>
-        /* General Page Styling */
         body {
-            background-color: #050505; /* Darker background for the site */
-            color: white;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #050505;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,11 +19,11 @@
         .phone-container {
             width: 320px;
             height: 650px;
-            background: #000000; /* Matching the frame to the screen */
-            border: 12px solid #1a1a1a; /* Distinct hardware border */
+            background: #000000;
+            border: 12px solid #1a1a1a;
             border-radius: 55px;
             position: relative;
-            box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.03);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -46,52 +43,11 @@
             z-index: 10;
         }
 
-        /* The PURE BLACK Screen */
+        /* The Pure Black Screen */
         .screen {
             flex-grow: 1;
-            background: #000000; /* Pure Black */
-            padding: 45px 20px 20px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: #000000;
             position: relative;
-        }
-
-        /* OS UI Elements */
-        .status-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 0 15px;
-            box-sizing: border-box;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
-
-        .os-logo-container {
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 1.8rem;
-            margin: 0;
-            color: #ffffff;
-            font-weight: 200;
-            letter-spacing: 4px;
-        }
-
-        .beta-tag {
-            display: inline-block;
-            border: 1px solid #333;
-            color: #888;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.65rem;
-            margin-top: 10px;
-            letter-spacing: 1px;
         }
 
         /* The Home Indicator Bar */
@@ -113,18 +69,7 @@
         <div class="notch"></div>
         <div class="home-bar"></div>
 
-        <div class="screen">
-            <div class="status-bar">
-                <span>12:00</span>
-                <span>RandomOS Beta</span>
-            </div>
-
-            <div class="os-logo-container">
-                <h1>RandomOS</h1>
-                <div class="beta-tag">VERSION 1.0</div>
-            </div>
-            
-            </div>
+        <div class="screen"></div>
     </div>
 
 </body>
