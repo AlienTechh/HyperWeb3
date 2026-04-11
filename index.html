@@ -9,21 +9,22 @@
             margin: 0; padding: 0;
             width: 100%; height: 100%;
             overflow: hidden; 
-            background-color: #ffffff; /* Site background set to white */
+            /* Site background: Modern dark aesthetic */
+            background: url('https://images.unsplash.com/photo-1477346611705-65d1883cee1e?auto=format&fit=crop&q=80&w=2070') no-repeat center center fixed;
+            background-size: cover;
             display: flex; justify-content: center; align-items: center;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Hardware Bezels - Deep Black */
         .phone-container {
             width: 320px; height: 650px;
             background: #000;
-            border: 14px solid #000000; /* Bezels made black */
+            border: 14px solid #000000;
             border-radius: 55px;
             position: relative;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
         }
 
         .power-btn {
@@ -32,9 +33,8 @@
             border-radius: 0 5px 5px 0; cursor: pointer; z-index: 100;
         }
 
-        /* Punch Hole - Black and Bigger */
         .punch-hole {
-            width: 18px; height: 18px; /* Bigger punch hole */
+            width: 18px; height: 18px;
             background: #000000;
             border-radius: 50%; position: absolute; top: 15px;
             left: 50%; transform: translateX(-50%); z-index: 95;
@@ -46,7 +46,6 @@
             border-radius: 41px; overflow: hidden;
         }
 
-        /* Wallpaper System */
         .wallpaper {
             position: absolute; width: 100%; height: 100%;
             background-size: cover; background-position: center;
@@ -85,7 +84,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Settings App */
         #settings-app {
             display: flex; background: rgba(0,0,0,0.7); z-index: 40;
             backdrop-filter: blur(25px); overflow: hidden;
@@ -95,20 +93,24 @@
         }
         #settings-app.open { transform: scale(1); opacity: 1; pointer-events: auto; }
 
-        .settings-content-wrapper { display: flex; width: 300%; height: 100%; transition: transform 0.5s ease; }
-        .settings-page { width: 33.33%; height: 100%; display: flex; flex-direction: column; }
+        .settings-content-wrapper { display: flex; width: 400%; height: 100%; transition: transform 0.5s ease; }
+        .settings-page { width: 25%; height: 100%; display: flex; flex-direction: column; }
         .settings-header { padding: 50px 20px 20px; font-size: 24px; font-weight: bold; }
         .settings-item { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; cursor: pointer; }
 
-        /* Modal */
         #wallpaper-modal {
             position: absolute; bottom: 0; width: 100%; background: #1c1c1e;
             border-radius: 25px 25px 0 0; padding: 20px; box-sizing: border-box;
             transform: translateY(100%); transition: transform 0.4s ease; z-index: 100;
         }
         #wallpaper-modal.active { transform: translateY(0); }
-        .modal-btn { padding: 15px; text-align: center; border-bottom: 1px solid #333; color: #007aff; cursor: pointer; font-weight: 500;}
-        .modal-btn.cancel { color: #ff3b30; border-bottom: none; }
+        .modal-btn { padding: 15px; text-align: center; border-bottom: 1px solid #333; color: #007aff; cursor: pointer; }
+
+        #toast {
+            position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.9); color: black; padding: 8px 16px;
+            border-radius: 20px; font-size: 12px; opacity: 0; transition: opacity 0.3s; z-index: 110;
+        }
 
         #home-bar {
             width: 110px; height: 4px; background: rgba(255, 255, 255, 0.5);
@@ -117,8 +119,7 @@
             cursor: pointer; opacity: 0; transition: opacity 0.4s;
         }
 
-        #lockscreen { padding-top: 80px; align-items: center; background: transparent; }
-        #time { font-size: 3.8rem; font-weight: 200; text-shadow: 0 2px 15px rgba(0,0,0,0.4); }
+        #time { font-size: 3.8rem; font-weight: 200; text-shadow: 0 2px 15px rgba(0,0,0,0.4); margin-top: 80px; text-align: center;}
     </style>
 </head>
 <body>
@@ -127,6 +128,7 @@
         <div class="power-btn" onclick="togglePower()"></div>
         <div class="punch-hole"></div>
         <div id="home-bar" onclick="handleHomeBar()"></div>
+        <div id="toast">developer options activated</div>
 
         <div class="screen">
             <div id="lock-wp" class="wallpaper"></div>
@@ -150,56 +152,55 @@
                 <div class="settings-content-wrapper" id="settings-nav">
                     <div class="settings-page">
                         <div class="settings-header">Settings</div>
-                        <div class="settings-item" onclick="goToPage(2)">About Phone <span>></span></div>
-                        <div class="settings-item" onclick="goToPage(1)">Customization <span>></span></div>
+                        <div class="settings-item" onclick="goToPage(1)">About Phone <span>></span></div>
+                        <div class="settings-item" onclick="goToPage(2)">Customization <span>></span></div>
+                        <div class="settings-item" id="dev-opt-item" style="display:none" onclick="goToPage(3)">Developer Options <span>></span></div>
+                    </div>
+                    <div class="settings-page">
+                        <div class="settings-header"><span onclick="goToPage(0)" style="color:#007aff; cursor:pointer">❮ Back</span></div>
+                        <p id="os-text" onclick="handleDevClick()" style="text-align:center; font-size: 22px; margin-top: 20px; font-weight: 700; cursor: pointer;">RandomOS 1.0</p>
+                        <div class="settings-item"><span style="color:#888">Phone Name</span><span>rPhone 1 Pro</span></div>
                     </div>
                     <div class="settings-page">
                         <div class="settings-header"><span onclick="goToPage(0)" style="color:#007aff; cursor:pointer">❮ Back</span></div>
                         <div style="padding: 20px;">
-                            <p style="color: #bbb; font-size: 14px; margin-bottom: 15px;">Choose a wallpaper</p>
-                            <button onclick="document.getElementById('wp-input').click()" style="width:100%; padding: 15px; border-radius: 12px; border:none; background:rgba(255,255,255,0.1); color:white; cursor:pointer;">Select Photo</button>
+                            <button onclick="document.getElementById('wp-input').click()" style="width:100%; padding: 15px; border-radius: 12px; border:none; background:rgba(255,255,255,0.1); color:white; cursor:pointer;">Select Wallpaper</button>
                             <input type="file" id="wp-input" hidden accept="image/*" onchange="handleFile(this)">
                         </div>
                     </div>
                     <div class="settings-page">
                         <div class="settings-header"><span onclick="goToPage(0)" style="color:#007aff; cursor:pointer">❮ Back</span></div>
-                        <p style="text-align:center; font-size: 22px; margin-top: 20px; font-weight: 700;">RandomOS 1.0</p>
-                        <div class="settings-item"><span style="color:#888">Phone Name</span><span>rPhone 1 Pro</span></div>
-                        <div class="settings-item"><span style="color:#888">Version</span><span>Beta 1.0</span></div>
+                        <div style="flex:1; display:flex; justify-content:center; align-items:center;">
+                            <h1 style="font-size: 40px; color: #444;">none</h1>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div id="wallpaper-modal">
-                <p style="color:#888; text-align:center; font-size:13px; margin-bottom:15px;">Choose where you want to change wallpaper</p>
+                <p style="color:#888; text-align:center; font-size:13px; margin-bottom:15px;">Set Wallpaper</p>
                 <div class="modal-btn" onclick="applyWP('lock')">Lockscreen</div>
                 <div class="modal-btn" onclick="applyWP('home')">Home screen</div>
                 <div class="modal-btn" onclick="applyWP('both')">Both</div>
-                <div class="modal-btn cancel" onclick="closeModal()">Cancel</div>
+                <div class="modal-btn" style="color:#ff3b30; border:none;" onclick="closeModal()">Cancel</div>
             </div>
         </div>
     </div>
 
     <script>
-        let isPowerOn = false, isUnlocked = false, tempImg = "";
+        let isPowerOn = false, isUnlocked = false, tempImg = "", clickCount = 0, devActive = false;
         const lockWP = document.getElementById('lock-wp'), homeWP = document.getElementById('home-wp');
 
         function togglePower() {
             isPowerOn = !isPowerOn;
-            const overlay = document.getElementById('power-overlay');
-            const homeBar = document.getElementById('home-bar');
-            
+            document.getElementById('power-overlay').style.opacity = isPowerOn ? '0' : '1';
+            document.getElementById('home-bar').style.opacity = isPowerOn ? '1' : '0';
             if (isPowerOn) {
-                overlay.style.opacity = '0';
-                homeBar.style.opacity = '1';
-                homeBar.style.pointerEvents = 'auto';
                 document.getElementById('lockscreen').style.display = 'flex';
                 lockWP.style.display = 'block';
                 homeWP.style.display = 'none';
                 updateClock();
             } else {
-                overlay.style.opacity = '1';
-                homeBar.style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('lockscreen').style.display = 'none';
                     document.getElementById('homescreen').style.display = 'none';
@@ -235,9 +236,7 @@
             homeWP.classList.add('app-active');
         }
 
-        function goToPage(num) { 
-            document.getElementById('settings-nav').style.transform = `translateX(-${num * 33.33}%)`; 
-        }
+        function goToPage(num) { document.getElementById('settings-nav').style.transform = `translateX(-${num * 25}%)`; }
 
         function handleFile(input) {
             if (input.files && input.files[0]) {
@@ -247,6 +246,8 @@
                     document.getElementById('wallpaper-modal').classList.add('active'); 
                 };
                 reader.readAsDataURL(input.files[0]);
+                // BUG FIX: Reset input value so selecting the same file again triggers 'onchange'
+                input.value = ""; 
             }
         }
 
@@ -257,6 +258,18 @@
         }
 
         function closeModal() { document.getElementById('wallpaper-modal').classList.remove('active'); }
+
+        function handleDevClick() {
+            if (devActive) return;
+            clickCount++;
+            if (clickCount === 6) {
+                devActive = true;
+                document.getElementById('dev-opt-item').style.display = 'flex';
+                const toast = document.getElementById('toast');
+                toast.style.opacity = '1';
+                setTimeout(() => toast.style.opacity = '0', 2000);
+            }
+        }
 
         function updateClock() {
             const now = new Date();
