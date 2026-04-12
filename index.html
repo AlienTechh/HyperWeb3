@@ -252,17 +252,29 @@
 
     <script>
         let isPowerOn = false, isUnlocked = false, clickCount = 0, devActive = false;
+        let audioPrimed = false;
         const lockWP = document.getElementById('lock-wp'), homeWP = document.getElementById('home-wp');
 
         let currentStream = null;
         let facingMode = "environment"; 
 
-        // --- UPDATED SOUND EFFECTS ---
-        const powerSound = new Audio('http://googleusercontent.com/file_content/2');
-        const shutterSound = new Audio('http://googleusercontent.com/file_content/0');
-        const unlockSound = new Audio('http://googleusercontent.com/file_content/1');
+        // --- SOUND EFFECTS CONFIG ---
+        const powerSound = new Audio('mixkit-mouse-click-close-1113.wav');
+        const shutterSound = new Audio('mixkit-camera-lens-shutter-1433.wav');
+        const unlockSound = new Audio('windows-8-8-1-startup-sound.mp3');
 
         function togglePower() {
+            // Prime audio on first interaction to bypass browser autoplay blocks
+            if (!audioPrimed) {
+                [powerSound, shutterSound, unlockSound].forEach(s => {
+                    s.play().then(() => {
+                        s.pause();
+                        s.currentTime = 0;
+                    }).catch(e => console.log("Audio priming pending..."));
+                });
+                audioPrimed = true;
+            }
+
             powerSound.currentTime = 0; 
             powerSound.play();
             
@@ -309,7 +321,6 @@
                 lockWP.classList.remove('app-active');
                 homeWP.classList.remove('app-active');
             } else if (isPowerOn && !isUnlocked) {
-                // Play Unlock Sound
                 unlockSound.currentTime = 0;
                 unlockSound.play();
                 
@@ -374,7 +385,6 @@
         }
 
         function takePhoto() {
-            // Play Shutter Sound
             shutterSound.currentTime = 0;
             shutterSound.play();
 
