@@ -121,20 +121,18 @@
             z-index: 400;
             border-radius: 32px;
             opacity: 0;
-            visibility: hidden; /* Fixes the double-click bug */
             pointer-events: none;
-            transform-origin: top left; /* Brings back top-left zoom */
-            transform: scale(0); /* Zooms from 0 */
+            /* Perfectly aligns the origin point to the center of the Settings app icon */
+            transform-origin: 16% 15%; 
+            transform: scale(0);
             /* NORMAL RESPONSE: Slower animation for natural feel */
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, visibility 0.4s;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
         }
 
         .app-window.open {
             opacity: 1;
-            visibility: visible; /* Fixes the double-click bug */
             transform: scale(1);
             pointer-events: auto;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s, visibility 0s;
         }
 
         .status-bar {
@@ -163,7 +161,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: 100%;
-            height: 50px; /* Slightly larger hit area for easier swiping */
+            height: 50px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -193,7 +191,7 @@
                 </div>
 
                 <div class="home-grid">
-                    <div class="app-icon" onclick="openApp('settings')">
+                    <div class="app-icon" onpointerdown="openApp('settings')">
                         <img src="https://img.icons8.com/?size=100&id=a8NHl6SmDbn7&format=png&color=000000" alt="Settings">
                     </div>
                 </div>
@@ -210,13 +208,12 @@
     <script>
         let isPowerOn = true;
         let startY = 0;
-        let activeAction = null; // Track if we are unlocking or closing app
+        let activeAction = null; 
 
         const lockscreen = document.getElementById('lockscreen');
         const lockBar = document.getElementById('lock-bar');
         const homeTrigger = document.getElementById('home-trigger');
 
-        // IMPROVED SWIPE LOGIC FOR PC
         const handleStart = (e, action) => {
             startY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
             activeAction = action;
@@ -224,14 +221,13 @@
 
         const handleMove = (e) => {
             if (!startY) return;
-            // Optional: add visual follow here later
         };
 
         const handleEnd = (e) => {
             if (!startY) return;
             const endY = e.clientY || (e.changedTouches ? e.changedTouches[0].clientY : startY);
             
-            if (startY - endY > 50) { // Swipe Up detected
+            if (startY - endY > 50) { 
                 if (activeAction === 'unlock') {
                     unlock();
                 } else if (activeAction === 'home') {
@@ -242,15 +238,12 @@
             activeAction = null;
         };
 
-        // Listeners for Lockscreen
         lockBar.addEventListener('mousedown', (e) => handleStart(e, 'unlock'));
         lockBar.addEventListener('touchstart', (e) => handleStart(e, 'unlock'));
 
-        // Listeners for Home Bar
         homeTrigger.addEventListener('mousedown', (e) => handleStart(e, 'home'));
         homeTrigger.addEventListener('touchstart', (e) => handleStart(e, 'home'));
 
-        // Global listeners to catch the end of the swipe even if mouse moves off the bar
         window.addEventListener('mouseup', handleEnd);
         window.addEventListener('touchend', handleEnd);
         window.addEventListener('mousemove', handleMove);
