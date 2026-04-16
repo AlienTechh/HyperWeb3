@@ -2,187 +2,225 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web OS Emulator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RandomOS 1.0 Beta</title>
     <style>
-        /* 1. The Workbench (Background) */
+        /* 1. NATIVE FEEL OVERRIDES */
+        * {
+            -webkit-tap-highlight-color: transparent; /* Removes blue highlight on tap */
+            user-select: none; /* Prevents text selection */
+            outline: none;
+            box-sizing: border-box;
+        }
+
         body {
-            background-color: #1a1a1a;
+            background-color: #0b0b0b;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; /* Removes browser scroll */
+            font-family: -apple-system, system-ui, sans-serif;
+            color: white;
         }
 
-        /* 2. The Physical Phone Frame */
-        .phone-frame {
-            width: 300px;
-            height: 600px;
+        /* 2. PHONE FRAME */
+        .phone {
+            width: 320px;
+            height: 650px;
             background: #000;
-            border-radius: 40px;
-            border: 8px solid #333;
+            border-radius: 45px;
+            border: 10px solid #222;
             position: relative;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            overflow: hidden; /* Clips the software inside the frame */
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
         }
 
-        /* 3. The Screen/OS Container */
+        /* 3. LOCKSCREEN */
+        #lockscreen {
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070') center/cover;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 20px;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #lockscreen.unlocked {
+            transform: translateY(-100%);
+        }
+
+        .lock-time { font-size: 50px; font-weight: 200; }
+        .lock-date { font-size: 18px; margin-top: -10px; opacity: 0.8; }
+        .swipe-hint { font-size: 12px; opacity: 0.6; animation: bounce 2s infinite; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        /* 4. HOME SCREEN */
         .screen {
             width: 100%;
             height: 100%;
-            background: linear-gradient(180deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-            display: flex;
-            flex-direction: column;
-            transition: all 0.5s ease;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1964') center/cover;
+            padding: 40px 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 15px;
         }
 
-        /* 4. Status Bar (Time, Battery) */
         .status-bar {
-            height: 30px;
-            padding: 10px 20px 0;
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            padding: 0 25px;
             display: flex;
             justify-content: space-between;
             font-size: 12px;
-            font-weight: bold;
-            color: #333;
+            z-index: 50;
         }
 
-        /* 5. App Grid */
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .app-icon {
+        /* 5. APP STYLING */
+        .app {
             display: flex;
             flex-direction: column;
             align-items: center;
-            cursor: pointer;
-            transition: transform 0.2s;
+            font-size: 10px;
+            gap: 5px;
         }
 
-        .app-icon:active {
-            transform: scale(0.9);
-        }
-
-        .icon-box {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            margin-bottom: 5px;
+        .icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            font-size: 24px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: transform 0.1s;
         }
 
-        .app-label {
-            font-size: 10px;
-            color: #333;
-        }
+        .icon:active { transform: scale(0.9); }
 
-        /* 6. Navigation Bar (Bottom) */
-        .nav-bar {
+        /* 6. APP WINDOWS (No "Back" Button - use Home Bar) */
+        .app-window {
             position: absolute;
-            bottom: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
+            inset: 0;
+            background: #fff;
+            color: #000;
+            z-index: 80;
+            transform: scale(0.8);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 35px;
+            padding: 50px 20px;
         }
 
-        .home-button {
-            width: 100px;
+        .app-window.open {
+            transform: scale(1);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 7. GESTURE HOME BAR */
+        .home-bar {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
             height: 5px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(255,255,255,0.5);
             border-radius: 10px;
+            z-index: 200;
             cursor: pointer;
         }
 
-        /* Settings Page (Hidden by default) */
-        #settings-page {
-            position: absolute;
-            top: 100%; /* Slide down effect */
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #fff;
-            transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 40px 20px;
-            box-sizing: border-box;
-        }
+        .home-bar:hover { background: rgba(255,255,255,0.8); }
 
-        #settings-page.active {
-            top: 0;
-        }
+        .os-label { margin-top: 20px; color: #555; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <div class="phone-frame">
+    <div class="phone">
+        <div class="status-bar">
+            <span id="clock">05:14</span>
+            <span>5G 🔋</span>
+        </div>
+
+        <div id="lockscreen" onclick="unlock()">
+            <div style="text-align: center;">
+                <div class="lock-time">05:14</div>
+                <div class="lock-date">Thursday, Apr 16</div>
+            </div>
+            <div class="swipe-hint">Tap to Unlock</div>
+        </div>
+
         <div class="screen">
-            <div class="status-bar">
-                <span id="clock">05:14</span>
-                <span>5G 🔋</span>
+            <div class="app" onclick="openApp('settings')">
+                <div class="icon" style="background: linear-gradient(#eee, #999);">⚙️</div>
+                <span>Settings</span>
             </div>
-
-            <div class="app-grid">
-                <div class="app-icon" onclick="openSettings()">
-                    <div class="icon-box" style="background: #8e8e93;">⚙️</div>
-                    <span class="app-label">Settings</span>
-                </div>
-                <div class="app-icon">
-                    <div class="icon-box" style="background: #007aff;">📞</div>
-                    <span class="app-label">Dialer</span>
-                </div>
-                <div class="app-icon">
-                    <div class="icon-box" style="background: #34c759;">📷</div>
-                    <span class="app-label">Gallery</span>
-                </div>
-                <div class="app-icon">
-                    <div class="icon-box" style="background: #ff9500;">🎵</div>
-                    <span class="app-label">Music</span>
-                </div>
+            <div class="app">
+                <div class="icon" style="background: linear-gradient(#58eb44, #209d10);">📞</div>
+                <span>Dialer</span>
             </div>
-
-            <div id="settings-page">
-                <h2>Settings</h2>
-                <hr>
-                <p><strong>Device:</strong> WebPhone Pro</p>
-                <p><strong>OS:</strong> OriginWeb v1.0</p>
-                <button onclick="closeSettings()">Back to Home</button>
-            </div>
-
-            <div class="nav-bar">
-                <div class="home-button" onclick="closeSettings()"></div>
+            <div class="app">
+                <div class="icon" style="background: linear-gradient(#ff5e62, #ff9966);">📷</div>
+                <span>Gallery</span>
             </div>
         </div>
+
+        <div id="settings" class="app-window">
+            <h1>Settings</h1>
+            <p style="opacity: 0.6;">System Management</p>
+            <hr>
+            <div style="padding: 10px 0;">
+                <p><strong>Device:</strong> RandomOS Emulator</p>
+                <p><strong>Version:</strong> 1.0 Beta</p>
+                <p><strong>Developer:</strong> User</p>
+            </div>
+        </div>
+
+        <div class="home-bar" onclick="goHome()"></div>
     </div>
 
+    <div class="os-label">RandomOS 1.0 Beta</div>
+
     <script>
-        // Simple logic to handle the "OS" feel
-        function openSettings() {
-            document.getElementById('settings-page').classList.add('active');
-        }
-
-        function closeSettings() {
-            document.getElementById('settings-page').classList.remove('active');
-        }
-
-        // Update clock
+        // Clock Functionality
         function updateClock() {
             const now = new Date();
             const time = now.getHours().toString().padStart(2, '0') + ":" + 
                          now.getMinutes().toString().padStart(2, '0');
-            document.getElementById('clock').innerText = time;
+            document.querySelectorAll('#clock, .lock-time').forEach(el => el.innerText = time);
         }
         setInterval(updateClock, 1000);
         updateClock();
-    </script>
 
+        // OS Logic
+        function unlock() {
+            document.getElementById('lockscreen').classList.add('unlocked');
+        }
+
+        function openApp(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function goHome() {
+            // Close all windows
+            document.querySelectorAll('.app-window').forEach(win => win.classList.remove('open'));
+            // If locked, just unlock (optional)
+            unlock();
+        }
+    </script>
 </body>
 </html>
