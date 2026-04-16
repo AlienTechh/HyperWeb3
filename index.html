@@ -69,7 +69,6 @@
             background: #000;
         }
 
-        /* Lockscreen */
         #lockscreen {
             position: absolute;
             inset: 0;
@@ -88,8 +87,7 @@
             pointer-events: none;
         }
 
-        /* Home Grid */
-        #home-bg {
+        .home-grid {
             width: 100%;
             height: 100%;
             background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070') center/cover;
@@ -116,11 +114,10 @@
             object-fit: cover;
         }
 
-        /* App Windows */
         .app-window {
             position: absolute;
             inset: 0;
-            background: #f2f2f7;
+            background: #fff;
             z-index: 400;
             border-radius: 32px;
             opacity: 0;
@@ -136,23 +133,15 @@
             pointer-events: auto;
         }
 
-        #settings { transform-origin: 16% 15%; padding: 60px 20px; color: #000; }
-        
-        /* TikTok App Styling */
-        #tiktok { 
-            transform-origin: 38% 15%; 
-            background: #000; 
-            display: flex; 
-            flex-direction: column;
-        }
+        #settings { transform-origin: 16% 15%; background: #f2f2f7; padding: 60px 20px; }
+        #tiktok { transform-origin: 38% 15%; background: #000; }
 
-        .tiktok-container {
+        .tiktok-wrapper {
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #000;
         }
 
         .status-bar {
@@ -186,7 +175,6 @@
             justify-content: center;
             align-items: center;
             z-index: 700;
-            cursor: ns-resize;
         }
     </style>
 </head>
@@ -210,7 +198,7 @@
                     <div class="home-bar" id="lock-bar"></div>
                 </div>
 
-                <div class="home-grid" id="home-bg">
+                <div class="home-grid">
                     <div class="app-icon" onpointerdown="openApp('settings')">
                         <img src="https://img.icons8.com/?size=100&id=a8NHl6SmDbn7&format=png&color=000000" alt="Settings">
                     </div>
@@ -220,20 +208,18 @@
                 </div>
 
                 <div id="settings" class="app-window">
-                    <h2 style="margin-bottom: 20px;">Settings</h2>
-                    <p style="opacity: 0.6;">System preferences go here.</p>
+                    <h2 style="margin-top: 20px;">Settings</h2>
                 </div>
 
                 <div id="tiktok" class="app-window">
-                    <div class="tiktok-container">
+                    <div class="tiktok-wrapper">
                         <iframe 
-                            src="https://www.tiktok.com/player/v1/7628607392866946325?music_info=1&description=1" 
                             width="100%" 
                             height="100%" 
-                            style="border:none;" 
-                            allow="autoplay; encrypted-media; fullscreen" 
-                            allowfullscreen
-                            loading="lazy">
+                            src="https://www.tiktok.com/embed/v2/7628607392866946325?controls=0&rel=0" 
+                            frameborder="0" 
+                            allow="autoplay; encrypted-media" 
+                            allowfullscreen>
                         </iframe>
                     </div>
                 </div>
@@ -279,15 +265,20 @@
         window.addEventListener('touchend', handleEnd);
 
         function unlock() { lockscreen.classList.add('unlocked'); }
-        function goHome() { 
-            document.querySelectorAll('.app-window').forEach(w => w.classList.remove('open')); 
-        }
+        function goHome() { document.querySelectorAll('.app-window').forEach(w => w.classList.remove('open')); }
         function openApp(id) { document.getElementById(id).classList.add('open'); }
 
         function togglePower() {
             const device = document.getElementById('device');
-            if (isPowerOn) { device.style.opacity = "0"; isPowerOn = false; }
-            else { device.style.opacity = "1"; lockscreen.classList.remove('unlocked'); goHome(); isPowerOn = true; }
+            if (isPowerOn) {
+                device.style.opacity = "0";
+                isPowerOn = false;
+            } else {
+                device.style.opacity = "1";
+                lockscreen.classList.remove('unlocked');
+                goHome();
+                isPowerOn = true;
+            }
         }
 
         function updateTime() {
