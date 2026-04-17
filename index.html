@@ -28,13 +28,13 @@
             padding-right: 12px;
         }
 
-        /* Samsung S8 Style Chassis */
+        /* Accurate S8 Slim Chassis */
         .phone {
             width: 320px;
             height: 680px;
             background: #050505; 
-            border-radius: 50px; /* Deep S8 curve */
-            border: 3px solid #333; 
+            border-radius: 48px; 
+            border: 2px solid #222; 
             position: relative;
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
@@ -42,27 +42,26 @@
             flex-direction: column;
         }
 
-        /* S8 Top Bezel with deep radius */
+        /* Thinner S8 Bezels as requested */
         .top-bezel {
-            width: 100%; height: 55px; background: #000;
+            width: 100%; height: 25px; background: #000;
             display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
 
-        .speaker { width: 45px; height: 3px; background: #222; border-radius: 10px; }
-        .sensor { width: 7px; height: 7px; background: #111; border-radius: 50%; margin-left: 12px; }
+        .speaker { width: 35px; height: 2px; background: #1a1a1a; border-radius: 10px; }
+        .sensor { width: 6px; height: 6px; background: #0a0a0a; border-radius: 50%; margin-left: 10px; }
         
-        .bottom-bezel { width: 100%; height: 55px; background: #000; z-index: 1000; }
+        .bottom-bezel { width: 100%; height: 25px; background: #000; z-index: 1000; }
 
         .power-btn {
-            position: absolute; right: 0; top: 160px; width: 3px; height: 45px;
-            background: #444; border-radius: 0 4px 4px 0; cursor: pointer; z-index: 1001;
+            position: absolute; right: 0; top: 150px; width: 3px; height: 45px;
+            background: #333; border-radius: 0 4px 4px 0; cursor: pointer; z-index: 1001;
         }
 
         .screen-content {
             flex: 1; width: 100%; position: relative; background: #000;
             transition: opacity 0.25s ease-in-out;
-            /* The actual screen curve */
-            border-radius: 38px;
+            border-radius: 36px;
             margin: 0 4px;
             overflow: hidden;
         }
@@ -77,13 +76,11 @@
             transform: translateY(0);
         }
 
-        /* Zoom Animation Logic */
         .app-window {
             position: absolute; inset: 0; background: #fff; z-index: 400;
             opacity: 0; pointer-events: none;
             transform: scale(0);
-            /* Matching S8 screen radius */
-            border-radius: 38px;
+            border-radius: 36px;
             overflow: hidden;
         }
 
@@ -92,17 +89,31 @@
             transform: scale(1); 
             pointer-events: auto; 
         }
+
+        /* Fake TikTok App UI */
+        #tiktok { background: #000; color: white; }
+        .tiktok-image { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        #settings { background: #f2f2f7; padding: 0; color: #000; }
+        /* TikTok Interaction Overlay */
+        .tt-overlay { position: absolute; inset: 0; pointer-events: none; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; }
+        
+        .tt-right { position: absolute; right: 10px; bottom: 180px; display: flex; flex-direction: column; align-items: center; gap: 15px; pointer-events: auto; }
+        .tt-icon-btn { font-size: 28px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); cursor: pointer; }
+        
+        .tt-bottom { margin-bottom: 60px; pointer-events: auto; }
+        .tt-username { font-weight: bold; font-size: 15px; margin-bottom: 5px; }
+        .tt-caption { font-size: 13px; line-height: 1.4; width: 80%; }
+        
+        .tt-bottom-icons { display: flex; gap: 20px; margin-top: 10px; font-size: 24px; }
+
+        /* Rest of OS Styles */
+        #settings { background: #f2f2f7; color: #000; }
         .settings-header { padding: 50px 20px 10px; font-size: 28px; font-weight: bold; }
-        .settings-list { background: #fff; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd; margin-top: 20px; }
+        .settings-list { background: #fff; border-top: 1px solid #ddd; margin-top: 20px; }
         .settings-item { padding: 12px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
         .back-btn { color: #007aff; cursor: pointer; padding: 10px 20px; font-size: 17px; display: inline-block; }
         .sub-page { position: absolute; inset: 0; background: #f2f2f7; z-index: 10; display: none; }
         .sub-page.active { display: block; }
-
-        #tiktok { background: #000; }
-        .tiktok-image { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 
         .home-grid {
             width: 100%; height: 100%;
@@ -148,11 +159,11 @@
                 <div id="settings" class="app-window">
                     <div class="settings-header">Settings</div>
                     <div class="settings-list">
-                        <div class="settings-item" onclick="showSubPage('screen-settings')"><span>Screen</span><span>›</span></div>
+                        <div class="settings-item" onclick="showSubPage('screen-settings')"><span>Screen Refresh Rate</span><span>›</span></div>
                     </div>
                     <div id="screen-settings" class="sub-page">
                         <div style="padding-top: 40px;"><div class="back-btn" onclick="hideSubPage('screen-settings')">‹ Settings</div></div>
-                        <div class="settings-header" style="font-size: 22px;">Choose refresh rate</div>
+                        <div class="settings-header" style="font-size: 22px;">Choose Mode</div>
                         <div class="settings-list">
                             <div class="settings-item" onclick="setFPS(20)">60Hz (Real 20 FPS)</div>
                             <div class="settings-item" onclick="setFPS(60)">120Hz (Real 60 FPS)</div>
@@ -162,6 +173,20 @@
 
                 <div id="tiktok" class="app-window">
                     <img class="tiktok-image" src="https://photo-cdn2.icons8.com/u6Kq-Mztr6T6ndoFGgWU8u9KCkCVpR5PrUAwGE4VhoQ/rs:fit:1606:1072/wm:1:re:0:0:0.65/wmid:moose/q:98/czM6Ly9pY29uczgu/bW9vc2UtcHJvZC5h/c3NldHMvYXNzZXRz/L3NhdGEvb3JpZ2lu/YWwvNjA1L2Q2MmFi/YTFmLWVhNzEtNDlk/ZC04MDRhLTU2OTVh/MzA4M2IyYi5qcGc.jpg">
+                    
+                    <div class="tt-overlay">
+                        <div class="tt-right">
+                            <div class="tt-icon-btn">❤️</div>
+                        </div>
+                        <div class="tt-bottom">
+                            <div class="tt-username">@CleanOS_Project</div>
+                            <div class="tt-caption">CleanOS Comming Soon? #fyp #cleanos #viral</div>
+                            <div class="tt-bottom-icons">
+                                <div class="tt-icon-btn">💬</div>
+                                <div class="tt-icon-btn">⭐</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="gesture-trigger" id="gesture-area">
@@ -174,23 +199,13 @@
     </div>
 
     <script>
-        let isPowerOn = true;
-        let isUnlocked = false;
-        let startY = 0;
-        let isDragging = false;
-        let targetFPS = 20; 
-        let lastFrameTime = 0;
-
-        const screen = document.getElementById('screen');
-        const lockscreen = document.getElementById('lockscreen');
-        const gestureArea = document.getElementById('gesture-area');
+        let isPowerOn = true, isUnlocked = false, startY = 0, isDragging = false, targetFPS = 20, lastFrameTime = 0;
+        const screen = document.getElementById('screen'), lockscreen = document.getElementById('lockscreen'), gestureArea = document.getElementById('gesture-area');
 
         // Refresh Rate Throttling
         const originalRAF = window.requestAnimationFrame;
         window.requestAnimationFrame = function(callback) {
-            const now = performance.now();
-            const interval = 1000 / targetFPS;
-            const delta = now - lastFrameTime;
+            const now = performance.now(), interval = 1000 / targetFPS, delta = now - lastFrameTime;
             if (delta >= interval) {
                 lastFrameTime = now - (delta % interval);
                 return originalRAF(callback);
@@ -212,13 +227,8 @@
         }
 
         function openApp(id, iconElement) { 
-            const app = document.getElementById(id);
-            const iconRect = iconElement.getBoundingClientRect();
-            const screenRect = screen.getBoundingClientRect();
-            const originX = (iconRect.left + iconRect.width / 2) - screenRect.left;
-            const originY = (iconRect.top + iconRect.height / 2) - screenRect.top;
-
-            app.style.transformOrigin = `${originX}px ${originY}px`;
+            const app = document.getElementById(id), iconRect = iconElement.getBoundingClientRect(), screenRect = screen.getBoundingClientRect();
+            app.style.transformOrigin = `${(iconRect.left + iconRect.width / 2) - screenRect.left}px ${(iconRect.top + iconRect.height / 2) - screenRect.top}px`;
             app.classList.add('open');
         }
 
@@ -227,41 +237,28 @@
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
         }
 
-        // Gesture Controls
-        const handleStart = (e) => {
+        gestureArea.addEventListener('pointerdown', e => {
             if (!isPowerOn) return;
-            isDragging = true;
-            startY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            isDragging = true; startY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
             if (!isUnlocked) lockscreen.style.transition = 'none';
-        };
+        });
 
-        const handleMove = (e) => {
+        window.addEventListener('pointermove', e => {
             if (!isDragging) return;
-            const currentY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            const rawDelta = currentY - startY;
+            const currentY = e.clientY || (e.touches ? e.touches[0].clientY : 0), rawDelta = currentY - startY;
             const deltaY = (targetFPS === 20) ? Math.floor(rawDelta / 10) * 10 : rawDelta;
             if (!isUnlocked && deltaY < 0) lockscreen.style.transform = `translateY(${deltaY}px)`;
-        };
+        });
 
-        const handleEnd = (e) => {
+        window.addEventListener('pointerup', e => {
             if (!isDragging) return;
             isDragging = false;
             const endY = e.clientY || (e.changedTouches ? e.changedTouches[0].clientY : startY);
             if (!isUnlocked) {
-                if (startY - endY > 100) { 
-                    lockscreen.style.transform = 'translateY(-100%)';
-                    isUnlocked = true;
-                } else {
-                    lockscreen.style.transform = 'translateY(0)';
-                }
-            } else {
-                if (startY - endY > 50) goHome();
-            }
-        };
-
-        gestureArea.addEventListener('pointerdown', handleStart);
-        window.addEventListener('pointermove', handleMove);
-        window.addEventListener('pointerup', handleEnd);
+                if (startY - endY > 100) { lockscreen.style.transform = 'translateY(-100%)'; isUnlocked = true; }
+                else { lockscreen.style.transform = 'translateY(0)'; }
+            } else if (startY - endY > 50) goHome();
+        });
 
         function showSubPage(id) { document.getElementById(id).classList.add('active'); }
         function hideSubPage(id) { document.getElementById(id).classList.remove('active'); }
@@ -274,12 +271,9 @@
 
         function updateTime() {
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-            document.getElementById('clock').innerText = time;
-            document.getElementById('lock-clock').innerText = time;
+            document.getElementById('clock').innerText = time; document.getElementById('lock-clock').innerText = time;
         }
-        setInterval(updateTime, 1000);
-        updateTime();
-        setFPS(20); // Start with lag as requested
+        setInterval(updateTime, 1000); updateTime(); setFPS(20);
     </script>
 </body>
 </html>
