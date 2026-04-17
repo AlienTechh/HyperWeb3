@@ -42,15 +42,12 @@
             flex-direction: column;
         }
 
-        /* Thinner S8 Bezels as requested */
         .top-bezel {
             width: 100%; height: 25px; background: #000;
             display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
 
-        .speaker { width: 35px; height: 2px; background: #1a1a1a; border-radius: 10px; }
         .sensor { width: 6px; height: 6px; background: #0a0a0a; border-radius: 50%; margin-left: 10px; }
-        
         .bottom-bezel { width: 100%; height: 25px; background: #000; z-index: 1000; }
 
         .power-btn {
@@ -58,12 +55,15 @@
             background: #333; border-radius: 0 4px 4px 0; cursor: pointer; z-index: 1001;
         }
 
+        /* Curved Display Fix: Added box-shadow to simulate the Edge curve on both sides */
         .screen-content {
             flex: 1; width: 100%; position: relative; background: #000;
             transition: opacity 0.25s ease-in-out;
             border-radius: 36px;
-            margin: 0 4px;
+            margin: 0 2px;
             overflow: hidden;
+            box-shadow: inset 8px 0 10px -5px rgba(0,0,0,0.6), 
+                        inset -8px 0 10px -5px rgba(0,0,0,0.6);
         }
 
         .screen-off { opacity: 0 !important; pointer-events: none !important; }
@@ -84,33 +84,27 @@
             overflow: hidden;
         }
 
-        .app-window.open { 
-            opacity: 1; 
-            transform: scale(1); 
-            pointer-events: auto; 
-        }
+        .app-window.open { opacity: 1; transform: scale(1); pointer-events: auto; }
 
-        /* Fake TikTok App UI */
+        /* TikTok UI - Updated to match drawing */
         #tiktok { background: #000; color: white; }
         .tiktok-image { width: 100%; height: 100%; object-fit: cover; display: block; }
         
-        /* TikTok Interaction Overlay */
         .tt-overlay { position: absolute; inset: 0; pointer-events: none; padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; }
         
-        .tt-right { position: absolute; right: 10px; bottom: 180px; display: flex; flex-direction: column; align-items: center; gap: 15px; pointer-events: auto; }
-        .tt-icon-btn { font-size: 28px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); cursor: pointer; }
+        /* Icons positioned bottom-right as drawn */
+        .tt-right-bottom { position: absolute; right: 15px; bottom: 80px; display: flex; flex-direction: column; align-items: center; gap: 20px; pointer-events: auto; }
+        .tt-icon-btn { font-size: 32px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8)); cursor: pointer; }
         
-        .tt-bottom { margin-bottom: 60px; pointer-events: auto; }
-        .tt-username { font-weight: bold; font-size: 15px; margin-bottom: 5px; }
-        .tt-caption { font-size: 13px; line-height: 1.4; width: 80%; }
-        
-        .tt-bottom-icons { display: flex; gap: 20px; margin-top: 10px; font-size: 24px; }
+        .tt-info { margin-bottom: 50px; pointer-events: auto; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); }
+        .tt-username { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
+        .tt-caption { font-size: 14px; width: 70%; line-height: 1.3; }
 
-        /* Rest of OS Styles */
+        /* Settings UI - Renamed per request */
         #settings { background: #f2f2f7; color: #000; }
         .settings-header { padding: 50px 20px 10px; font-size: 28px; font-weight: bold; }
         .settings-list { background: #fff; border-top: 1px solid #ddd; margin-top: 20px; }
-        .settings-item { padding: 12px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
+        .settings-item { padding: 14px 20px; border-bottom: 1px solid #eee; cursor: pointer; display: flex; justify-content: space-between; }
         .back-btn { color: #007aff; cursor: pointer; padding: 10px 20px; font-size: 17px; display: inline-block; }
         .sub-page { position: absolute; inset: 0; background: #f2f2f7; z-index: 10; display: none; }
         .sub-page.active { display: block; }
@@ -132,7 +126,7 @@
     <div class="phone-wrapper">
         <div class="power-btn" onclick="togglePower()"></div>
         <div class="phone">
-            <div class="top-bezel"><div class="sensor"></div><div class="speaker"></div><div class="sensor"></div></div>
+            <div class="top-bezel"><div class="sensor"></div><div class="sensor"></div></div>
 
             <div class="screen-content" id="screen">
                 <div class="status-bar">
@@ -143,7 +137,7 @@
                 <div id="lockscreen">
                     <div style="text-align: center; color: white; margin-top: 40px;">
                         <h1 style="font-size: 50px; font-weight: 200; margin:0;" id="lock-clock">09:41</h1>
-                        <p style="opacity: 0.8; margin:0;">Thursday, Apr 16</p>
+                        <p style="opacity: 0.8; margin:0;">Friday, Apr 17</p>
                     </div>
                 </div>
 
@@ -159,11 +153,11 @@
                 <div id="settings" class="app-window">
                     <div class="settings-header">Settings</div>
                     <div class="settings-list">
-                        <div class="settings-item" onclick="showSubPage('screen-settings')"><span>Screen Refresh Rate</span><span>›</span></div>
+                        <div class="settings-item" onclick="showSubPage('screen-settings')"><span>Screen</span><span>›</span></div>
                     </div>
                     <div id="screen-settings" class="sub-page">
                         <div style="padding-top: 40px;"><div class="back-btn" onclick="hideSubPage('screen-settings')">‹ Settings</div></div>
-                        <div class="settings-header" style="font-size: 22px;">Choose Mode</div>
+                        <div class="settings-header" style="font-size: 22px;">Choose refresh rate</div>
                         <div class="settings-list">
                             <div class="settings-item" onclick="setFPS(20)">60Hz (Real 20 FPS)</div>
                             <div class="settings-item" onclick="setFPS(60)">120Hz (Real 60 FPS)</div>
@@ -175,16 +169,14 @@
                     <img class="tiktok-image" src="https://photo-cdn2.icons8.com/u6Kq-Mztr6T6ndoFGgWU8u9KCkCVpR5PrUAwGE4VhoQ/rs:fit:1606:1072/wm:1:re:0:0:0.65/wmid:moose/q:98/czM6Ly9pY29uczgu/bW9vc2UtcHJvZC5h/c3NldHMvYXNzZXRz/L3NhdGEvb3JpZ2lu/YWwvNjA1L2Q2MmFi/YTFmLWVhNzEtNDlk/ZC04MDRhLTU2OTVh/MzA4M2IyYi5qcGc.jpg">
                     
                     <div class="tt-overlay">
-                        <div class="tt-right">
-                            <div class="tt-icon-btn">❤️</div>
-                        </div>
-                        <div class="tt-bottom">
+                        <div class="tt-info">
                             <div class="tt-username">@CleanOS_Project</div>
                             <div class="tt-caption">CleanOS Comming Soon? #fyp #cleanos #viral</div>
-                            <div class="tt-bottom-icons">
-                                <div class="tt-icon-btn">💬</div>
-                                <div class="tt-icon-btn">⭐</div>
-                            </div>
+                        </div>
+                        <div class="tt-right-bottom">
+                            <div class="tt-icon-btn">❤️</div>
+                            <div class="tt-icon-btn">💬</div>
+                            <div class="tt-icon-btn">⭐</div>
                         </div>
                     </div>
                 </div>
@@ -202,7 +194,6 @@
         let isPowerOn = true, isUnlocked = false, startY = 0, isDragging = false, targetFPS = 20, lastFrameTime = 0;
         const screen = document.getElementById('screen'), lockscreen = document.getElementById('lockscreen'), gestureArea = document.getElementById('gesture-area');
 
-        // Refresh Rate Throttling
         const originalRAF = window.requestAnimationFrame;
         window.requestAnimationFrame = function(callback) {
             const now = performance.now(), interval = 1000 / targetFPS, delta = now - lastFrameTime;
