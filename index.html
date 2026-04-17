@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CleanOS 1.0 Beta</title>
+    <title>CleanOS 1.0 Beta - S8 Edition</title>
     <style>
         * {
             -webkit-tap-highlight-color: transparent;
@@ -94,7 +94,7 @@
         #lockscreen {
             position: absolute; inset: 0;
             background: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070') center/cover;
-            z-index: 800; display: flex; flex-direction: column;
+            z-index: 1100; display: flex; flex-direction: column;
             align-items: center; justify-content: space-between; padding: 40px 20px 20px;
             transform: translateY(0);
             border-radius: 40px;
@@ -129,15 +129,6 @@
 
         .app-window.open { opacity: 1; transform: scale(1); pointer-events: auto; }
 
-        #tiktok { background: #000; color: white; }
-        .tiktok-image { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .tt-overlay { position: absolute; inset: 0; pointer-events: none; padding: 25px; display: flex; flex-direction: column; justify-content: flex-end; }
-        .tt-right-bottom { position: absolute; right: 20px; bottom: 80px; display: flex; flex-direction: column; align-items: center; gap: 20px; pointer-events: auto; }
-        .tt-icon-btn { font-size: 30px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.9)); cursor: pointer; }
-        .tt-info { margin-bottom: 50px; pointer-events: auto; text-shadow: 1px 1px 4px rgba(0,0,0,1); }
-        .tt-username { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
-        .tt-caption { font-size: 14px; width: 75%; line-height: 1.4; }
-
         #settings { background: #f2f2f7; color: #000; }
         .settings-header { padding: 50px 20px 10px; font-size: 28px; font-weight: bold; }
         .settings-list { background: #fff; border-top: 1px solid #ddd; margin-top: 20px; }
@@ -146,6 +137,7 @@
         .sub-page { position: absolute; inset: 0; background: #f2f2f7; z-index: 10; display: none; }
         .sub-page.active { display: block; }
 
+        /* HOME SCREEN & UNLOCK ANIMATION */
         .home-screen {
             width: 100%; height: 100%;
             background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=2070') center/cover;
@@ -155,9 +147,31 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             border-radius: 40px;
+            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.5s;
+            transform: scale(0.85);
+            opacity: 0;
+        }
+        
+        /* State when phone is unlocked */
+        .home-screen.unlocked {
+            transform: scale(1);
+            opacity: 1;
         }
 
-        .app-icon { width: 54px; height: 54px; border-radius: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .app-icon { 
+            width: 54px; height: 54px; border-radius: 14px; cursor: pointer; 
+            display: flex; flex-direction: column; align-items: center;
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        
+        /* Staggered entry for icons */
+        .unlocked .app-icon { transform: translateY(0); opacity: 1; }
+        .unlocked .app-icon:nth-child(1) { transition-delay: 0.1s; }
+        .unlocked .app-icon:nth-child(2) { transition-delay: 0.15s; }
+        .unlocked .app-icon:nth-child(3) { transition-delay: 0.2s; }
+
         .app-icon img { width: 100%; height: 100%; border-radius: 12px; pointer-events: none; -webkit-user-drag: none; }
 
         .status-bar { 
@@ -170,21 +184,10 @@
         .gesture-trigger { position: absolute; bottom: 0; left: 0; width: 100%; height: 50px; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 12px; z-index: 1150; }
         .home-bar { width: 80px; height: 4px; background: rgba(255,255,255,0.6); border-radius: 10px; pointer-events: auto; }
 
-        /* BROWSER - CUSTOM "NONE" VIEW */
+        /* BROWSER - "NONE" VIEW */
         #browser { background: #fff; color: #000; }
-        .browser-content {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .browser-none-text {
-            font-size: 48px;
-            font-weight: 900;
-            letter-spacing: -2px;
-            color: #000;
-        }
+        .browser-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+        .browser-none-text { font-size: 48px; font-weight: 900; letter-spacing: -2px; color: #000; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -217,7 +220,7 @@
                     </div>
                 </div>
 
-                <div class="home-screen" id="homescreen-wallpaper">
+                <div class="home-screen" id="homescreen-ui">
                     <div class="app-icon" onpointerdown="openApp('settings', this)">
                         <img src="https://img.icons8.com/?size=100&id=a8NHl6SmDbn7&format=png">
                     </div>
@@ -257,21 +260,11 @@
                 </div>
 
                 <div id="tiktok" class="app-window">
-                    <img class="tiktok-image" src="https://photo-cdn2.icons8.com/u6Kq-Mztr6T6ndoFGgWU8u9KCkCVpR5PrUAwGE4VhoQ/rs:fit:1606:1072/wm:1:re:0:0:0.65/wmid:moose/q:98/czM6Ly9pY29uczgu/bW9vc2UtcHJvZC5h/c3NldHMvYXNzZXRz/L3NhdGEvb3JpZ2lu/YWwvNjA1L2Q2MmFi/YTFmLWVhNzEtNDlk/ZC04MDRhLTU2OTVh/MzA4M2IyYi5qcGc.jpg">
-                    <div class="tt-overlay">
-                        <div class="tt-info"><div class="tt-username">@CleanOS_Project</div><div class="tt-caption">CleanOS Coming Soon? #fyp #cleanos</div></div>
-                        <div class="tt-right-bottom">
-                            <div class="tt-icon-btn">❤️</div>
-                            <div class="tt-icon-btn">💬</div>
-                            <div class="tt-icon-btn">⭐</div>
-                        </div>
-                    </div>
+                    <div style="width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;color:#fff;">TikTok Content</div>
                 </div>
 
                 <div id="browser" class="app-window">
-                    <div class="browser-content">
-                        <div class="browser-none-text">NONE</div>
-                    </div>
+                    <div class="browser-content"><div class="browser-none-text">NONE</div></div>
                 </div>
 
                 <div class="gesture-trigger" id="gesture-area">
@@ -294,7 +287,7 @@
         const cc = document.getElementById('control-center');
         const statusBar = document.getElementById('status-bar-trigger');
         const gestureArea = document.getElementById('gesture-area');
-        const homescreen = document.getElementById('homescreen-wallpaper');
+        const homescreen = document.getElementById('homescreen-ui');
         const topBezel = document.getElementById('top-bezel');
 
         const originalRAF = window.requestAnimationFrame;
@@ -310,12 +303,13 @@
 
         function setFPS(fps) {
             targetFPS = fps;
+            const stepSetting = fps === 20 ? "steps(10)" : "cubic-bezier(0.19, 1, 0.22, 1)";
             const appWindows = document.querySelectorAll('.app-window');
-            const transition = fps === 20 ? "transform 0.6s steps(12), opacity 0.6s steps(12)" : "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.25s";
-            appWindows.forEach(w => w.style.transition = transition);
-            drawer.style.transition = fps === 20 ? "transform 0.6s steps(12)" : "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)";
-            cc.style.transition = fps === 20 ? "transform 0.5s steps(10)" : "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)";
-            lockscreen.style.transition = (fps === 20) ? "transform 0.5s steps(10)" : "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)";
+            appWindows.forEach(w => w.style.transition = `transform 0.4s ${stepSetting}, opacity 0.25s`);
+            drawer.style.transition = `transform 0.4s ${stepSetting}`;
+            cc.style.transition = `transform 0.4s ${stepSetting}`;
+            lockscreen.style.transition = `transform 0.4s ${stepSetting}`;
+            homescreen.style.transition = `transform 0.5s ${stepSetting}, opacity 0.5s`;
         }
 
         function openApp(id, iconElement) { 
@@ -326,7 +320,6 @@
 
         function goHome() { 
             document.querySelectorAll('.app-window').forEach(w => w.classList.remove('open'));
-            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             drawer.classList.remove('visible');
             isDrawerOpen = false;
         }
@@ -336,15 +329,23 @@
             isDragging = true;
             startY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
             swipeStartedOnStatusBar = (e.currentTarget === statusBar);
-            if (!isUnlocked) lockscreen.style.transition = 'none';
+            if (!isUnlocked) {
+                lockscreen.style.transition = 'none';
+                homescreen.style.transition = 'none';
+            }
         };
 
         const handleMove = (e) => {
             if (!isDragging) return;
             const currentY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
             const diff = startY - currentY;
+
             if (!isUnlocked && diff > 0) {
                 lockscreen.style.transform = `translateY(${-diff}px)`;
+                // Subtle homescreen reveal parallax
+                let progress = Math.min(diff / 400, 1);
+                homescreen.style.opacity = progress;
+                homescreen.style.transform = `scale(${0.85 + (progress * 0.15)})`;
             }
         };
 
@@ -354,10 +355,12 @@
             const endY = e.clientY || (e.changedTouches ? e.changedTouches[0].clientY : startY);
             const diff = startY - endY;
 
-            lockscreen.style.transition = (targetFPS === 20) ? "transform 0.5s steps(10)" : "transform 0.4s cubic-bezier(0.19, 1, 0.22, 1)";
+            const stepSetting = targetFPS === 20 ? "steps(10)" : "cubic-bezier(0.19, 1, 0.22, 1)";
+            lockscreen.style.transition = `transform 0.4s ${stepSetting}`;
+            homescreen.style.transition = `transform 0.5s ${stepSetting}, opacity 0.5s`;
 
-            // CONTROL CENTER 
-            if (swipeStartedOnStatusBar && diff < -50 && !isCCOpen && isUnlocked) {
+            // CC Trigger
+            if (swipeStartedOnStatusBar && diff < -50 && isUnlocked) {
                 cc.classList.add('open');
                 topBezel.classList.add('cc-active');
                 isCCOpen = true;
@@ -370,27 +373,23 @@
                 return;
             }
 
-            // UNLOCK LOGIC
+            // Unlock Logic
             if (!isUnlocked) {
                 if (diff > 120) { 
                     lockscreen.style.transform = 'translateY(-100%)'; 
                     isUnlocked = true; 
+                    homescreen.classList.add('unlocked');
+                    homescreen.style.opacity = "1";
+                    homescreen.style.transform = "scale(1)";
                 } else { 
                     lockscreen.style.transform = 'translateY(0)'; 
+                    homescreen.style.opacity = "0";
+                    homescreen.style.transform = "scale(0.85)";
                 }
             } else {
-                const anyAppOpen = document.querySelector('.app-window.open');
-                if (anyAppOpen) {
-                    if (diff > 50) goHome();
-                } else {
-                    if (diff > 60 && !isDrawerOpen) { 
-                        drawer.classList.add('visible');
-                        isDrawerOpen = true;
-                    } else if (diff < -60 && isDrawerOpen) { 
-                        drawer.classList.remove('visible');
-                        isDrawerOpen = false;
-                    }
-                }
+                if (diff > 50 && document.querySelector('.app-window.open')) goHome();
+                else if (diff > 60 && !isDrawerOpen) { drawer.classList.add('visible'); isDrawerOpen = true; }
+                else if (diff < -60 && isDrawerOpen) { drawer.classList.remove('visible'); isDrawerOpen = false; }
             }
             swipeStartedOnStatusBar = false;
         };
@@ -400,7 +399,6 @@
         homescreen.addEventListener('pointerdown', handleStart);
         gestureArea.addEventListener('pointerdown', handleStart);
         statusBar.addEventListener('pointerdown', handleStart);
-        cc.addEventListener('pointerdown', handleStart);
 
         function showSubPage(id) { document.getElementById(id).classList.add('active'); }
         function hideSubPage(id) { document.getElementById(id).classList.remove('active'); }
@@ -410,8 +408,10 @@
             screen.classList.toggle('screen-off', !isPowerOn);
             if (isPowerOn) { 
                 isUnlocked = false; 
-                lockscreen.style.transition = 'none'; 
+                homescreen.classList.remove('unlocked');
                 lockscreen.style.transform = 'translateY(0)'; 
+                homescreen.style.opacity = "0";
+                homescreen.style.transform = "scale(0.85)";
                 cc.classList.remove('open'); 
                 topBezel.classList.remove('cc-active');
                 isCCOpen = false; 
@@ -421,10 +421,8 @@
 
         function updateTime() {
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-            const clockEl = document.getElementById('clock');
-            const lockClockEl = document.getElementById('lock-clock');
-            if(clockEl) clockEl.innerText = time;
-            if(lockClockEl) lockClockEl.innerText = time;
+            document.getElementById('clock').innerText = time;
+            document.getElementById('lock-clock').innerText = time;
         }
         
         setInterval(updateTime, 1000); updateTime(); setFPS(20);
