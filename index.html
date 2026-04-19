@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HyperOS Pro - Full Icon Set</title>
+    <title>HyperOS Pro - Message Icon Fix</title>
     <style>
         :root {
             --phone-width: 310px;
@@ -85,8 +85,16 @@
             border: 1px solid rgba(255,255,255,0.1);
             touch-action: none;
             overflow: hidden;
+            box-sizing: border-box;
         }
-        .app-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Message Icon Customization */
+        .app-icon.msg-special {
+            background: #ffffff; /* Solid White Background */
+            padding: 10px; /* Makes the logo inside smaller */
+        }
+
+        .app-icon img { width: 100%; height: 100%; object-fit: contain; }
         .app-icon:active { transform: scale(0.85); }
         .app-label { color: white; font-size: 10px; margin-top: 5px; text-align: center; }
 
@@ -104,10 +112,7 @@
             position: absolute; bottom: 0; left: 0; width: 100%; height: 40px;
             z-index: 150; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 8px;
         }
-        .nav-bar { 
-            width: 100px; height: 4px; background: rgba(255,255,255,0.6); border-radius: 10px; 
-            transition: background 0.2s;
-        }
+        .nav-bar { width: 100px; height: 4px; background: rgba(255,255,255,0.6); border-radius: 10px; }
         .dark-bar { background: rgba(0,0,0,0.3); }
         .hidden_ls { transform: translateY(-100%); pointer-events: none; }
     </style>
@@ -139,7 +144,7 @@
 
                     <div class="dock">
                         <div class="app-icon" data-name="Phone"><img src="https://play-lh.googleusercontent.com/bk3e0glVbvRC4Z0uEZ5Oso5wjS89r1P_X5e-k3N_UBkTPXZLhGv50rRy7LAuDzzC9w=w240-h480-rw" alt="Phone"></div>
-                        <div class="app-icon" data-name="Messages"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Google_Messages_icon_%282022%29.svg/250px-Google_Messages_icon_%282022%29.svg.png" alt="Messages"></div>
+                        <div class="app-icon msg-special" data-name="Messages"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Google_Messages_icon_%282022%29.svg/250px-Google_Messages_icon_%282022%29.svg.png" alt="Messages"></div>
                         <div class="app-icon" data-name="Browser"><img src="https://downloadr2.apkmirror.com/wp-content/uploads/2020/07/79/5f06abb0c532a.png" alt="Browser"></div>
                         <div class="app-icon" data-name="Camera"><img src="https://hyperosupdates.com/wp-content/themes/miuidownload/icons/com.android.camera.webp" alt="Camera"></div>
                     </div>
@@ -148,11 +153,10 @@
                 <div id="app-window">
                     <div id="settings-view" style="display:none; padding: 50px 20px; color:#000;">
                         <h2>Settings</h2>
-                        <p>Fully Updated Icons</p>
                     </div>
                     <div id="generic-view" style="display:none; padding: 50px; text-align:center; color:#000;">
                         <h2 id="app-title">App</h2>
-                        <p>Instant One-Tap Performance</p>
+                        <p>Instant One-Tap Active</p>
                     </div>
                 </div>
 
