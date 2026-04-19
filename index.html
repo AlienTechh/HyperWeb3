@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HyperOS Pro - Message Icon Fix</title>
+    <title>HyperOS Pro - Final Polish</title>
     <style>
         :root {
             --phone-width: 310px;
@@ -52,19 +52,47 @@
             color: white; font-size: 11px; font-weight: 500; z-index: 90; box-sizing: border-box;
         }
 
+        /* Wallpaper Zoom/Blur Logic */
+        .wallpaper-container {
+            position: absolute; width: 100%; height: 100%;
+            background: #000; overflow: hidden;
+        }
+        
+        #homescreen-wall {
+            width: 100%; height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&q=80&w=600');
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.6s var(--fluid-bezier), filter 0.6s var(--fluid-bezier);
+            transform: scale(1);
+        }
+
+        /* When app is open, zoom and blur the wall */
+        .app-open-active #homescreen-wall {
+            transform: scale(1.15);
+            filter: blur(20px) brightness(0.8);
+        }
+
         .layer {
             position: absolute; width: 100%; height: 100%;
-            background-size: cover; background-position: center;
-            transition: transform 0.65s var(--fluid-bezier);
+            transition: transform 0.7s var(--fluid-bezier), opacity 0.5s var(--fluid-bezier);
         }
 
         #lockscreen {
             background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=600');
+            background-size: cover; background-position: center;
             z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
+            transform: scale(1); opacity: 1;
+        }
+
+        /* Unlock Animation Class */
+        .unlocked-anim {
+            transform: scale(1.2) !important;
+            opacity: 0 !important;
+            pointer-events: none;
         }
 
         #homescreen {
-            background-image: url('https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?auto=format&fit=crop&q=80&w=600');
             z-index: 40; padding: 60px 20px; box-sizing: border-box;
         }
 
@@ -79,21 +107,13 @@
 
         .app-icon {
             width: 54px; height: 54px; background: var(--glass);
-            backdrop-filter: blur(10px); border-radius: var(--icon-radius);
+            border-radius: var(--icon-radius);
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: transform 0.1s;
             border: 1px solid rgba(255,255,255,0.1);
-            touch-action: none;
-            overflow: hidden;
-            box-sizing: border-box;
+            overflow: hidden; box-sizing: border-box;
         }
-
-        /* Message Icon Customization */
-        .app-icon.msg-special {
-            background: #ffffff; /* Solid White Background */
-            padding: 10px; /* Makes the logo inside smaller */
-        }
-
+        .app-icon.msg-special { background: #fff; padding: 10px; }
         .app-icon img { width: 100%; height: 100%; object-fit: contain; }
         .app-icon:active { transform: scale(0.85); }
         .app-label { color: white; font-size: 10px; margin-top: 5px; text-align: center; }
@@ -103,7 +123,7 @@
             z-index: 60; transform: scale(0); opacity: 0;
             border-radius: 80px; pointer-events: none;
             transition: transform 0.5s var(--fluid-bezier), opacity 0.2s, border-radius 0.5s var(--fluid-bezier);
-            overflow: hidden; background: #f4f4f4;
+            overflow: hidden; background: #fff;
         }
 
         #app-window.open { transform: scale(1); opacity: 1; border-radius: var(--inner-radius); pointer-events: auto; }
@@ -114,10 +134,9 @@
         }
         .nav-bar { width: 100px; height: 4px; background: rgba(255,255,255,0.6); border-radius: 10px; }
         .dark-bar { background: rgba(0,0,0,0.3); }
-        .hidden_ls { transform: translateY(-100%); pointer-events: none; }
     </style>
 </head>
-<body>
+<body class="">
 
     <div style="position: relative;">
         <div class="power-btn" id="pwr-btn"></div>
@@ -131,32 +150,33 @@
                 </div>
 
                 <div id="homescreen" class="layer">
+                    <div class="wallpaper-container" style="position: absolute; top:0; left:0; z-index:-1;">
+                        <div id="homescreen-wall"></div>
+                    </div>
+
                     <div class="app-grid">
                         <div style="display:flex; flex-direction:column; align-items:center;">
-                            <div class="app-icon" data-name="Settings"><img src="https://hyperosupdates.com/wp-content/themes/miuidownload/icons/com.android.settings.webp" alt="Settings"></div>
+                            <div class="app-icon" data-name="Settings"><img src="https://hyperosupdates.com/wp-content/themes/miuidownload/icons/com.android.settings.webp"></div>
                             <span class="app-label">Settings</span>
                         </div>
                         <div style="display:flex; flex-direction:column; align-items:center;">
-                            <div class="app-icon" data-name="Gallery"><img src="https://hyperosupdates.com/wp-content/themes/miuidownload/icons/com.miui.gallery.webp" alt="Gallery"></div>
+                            <div class="app-icon" data-name="Gallery"><img src="https://hyperosupdates.com/wp-content/themes/miuidownload/icons/com.miui.gallery.webp"></div>
                             <span class="app-label">Gallery</span>
                         </div>
                     </div>
 
                     <div class="dock">
-                        <div class="app-icon" data-name="Phone"><img src="https://play-lh.googleusercontent.com/bk3e0glVbvRC4Z0uEZ5Oso5wjS89r1P_X5e-k3N_UBkTPXZLhGv50rRy7LAuDzzC9w=w240-h480-rw" alt="Phone"></div>
-                        <div class="app-icon msg-special" data-name="Messages"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Google_Messages_icon_%282022%29.svg/250px-Google_Messages_icon_%282022%29.svg.png" alt="Messages"></div>
-                        <div class="app-icon" data-name="Browser"><img src="https://downloadr2.apkmirror.com/wp-content/uploads/2020/07/79/5f06abb0c532a.png" alt="Browser"></div>
-                        <div class="app-icon" data-name="Camera"><img src="https://hyperosupdates.com/wp-content/themes/miuidownload/icons/com.android.camera.webp" alt="Camera"></div>
+                        <div class="app-icon" data-name="Phone"><img src="https://play-lh.googleusercontent.com/bk3e0glVbvRC4Z0uEZ5Oso5wjS89r1P_X5e-k3N_UBkTPXZLhGv50rRy7LAuDzzC9w=w240-h480-rw"></div>
+                        <div class="app-icon msg-special" data-name="Messages"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Google_Messages_icon_%282022%29.svg/250px-Google_Messages_icon_%282022%29.svg.png"></div>
+                        <div class="app-icon" data-name="Browser"><img src="https://downloadr2.apkmirror.com/wp-content/uploads/2020/07/79/5f06abb0c532a.png"></div>
+                        <div class="app-icon" data-name="Camera"><img src="https://hyperosupdates.com/wp-content/themes/miuidownload/icons/com.android.camera.webp"></div>
                     </div>
                 </div>
 
                 <div id="app-window">
-                    <div id="settings-view" style="display:none; padding: 50px 20px; color:#000;">
-                        <h2>Settings</h2>
-                    </div>
-                    <div id="generic-view" style="display:none; padding: 50px; text-align:center; color:#000;">
-                        <h2 id="app-title">App</h2>
-                        <p>Instant One-Tap Active</p>
+                    <div id="app-content" style="padding: 60px 20px; color:#000;">
+                        <h2 id="app-title">Settings</h2>
+                        <p>Blur & Zoom Active</p>
                     </div>
                 </div>
 
@@ -168,25 +188,28 @@
     </div>
 
     <script>
-        const phone = document.getElementById('phone-container');
-        const display = document.getElementById('display-content');
+        const body = document.body;
         const lockscreen = document.getElementById('lockscreen');
         const appWindow = document.getElementById('app-window');
         const visualBar = document.getElementById('visual-bar');
         const trigger = document.getElementById('nav-trigger');
         const pwrBtn = document.getElementById('pwr-btn');
+        const phone = document.getElementById('phone-container');
         
         let isPowerOn = true;
         let startY = 0;
         let isDragging = false;
 
+        // App Opening Logic with Wall Blur
         document.querySelectorAll('.app-icon').forEach(icon => {
             icon.addEventListener('pointerdown', (e) => {
                 e.preventDefault();
-                if (!isPowerOn || !lockscreen.classList.contains('hidden_ls')) return;
+                if (!isPowerOn || !lockscreen.classList.contains('unlocked-anim')) return;
                 
+                // Clear any existing state
                 appWindow.style.transition = 'none';
                 appWindow.classList.remove('open');
+                phone.classList.remove('app-open-active');
                 void appWindow.offsetWidth;
 
                 const name = icon.getAttribute('data-name');
@@ -197,52 +220,50 @@
                 const y = ((rect.top + rect.height/2) - phoneRect.top) / phoneRect.height * 100;
                 
                 appWindow.style.transformOrigin = `${x}% ${y}%`;
-                
-                if(name === "Settings") {
-                    document.getElementById('settings-view').style.display = 'block';
-                    document.getElementById('generic-view').style.display = 'none';
-                    appWindow.style.background = "#fff";
-                } else {
-                    document.getElementById('settings-view').style.display = 'none';
-                    document.getElementById('generic-view').style.display = 'block';
-                    document.getElementById('app-title').innerText = name;
-                    appWindow.style.background = "#f4f4f4";
-                }
+                document.getElementById('app-title').innerText = name;
 
                 requestAnimationFrame(() => {
                     appWindow.style.transition = ''; 
                     appWindow.classList.add('open');
+                    phone.classList.add('app-open-active'); // Triggers wall zoom/blur
                 });
             });
         });
 
-        const startAction = (e) => { if (!isPowerOn) return; isDragging = true; startY = e.clientY || (e.touches ? e.touches[0].clientY : 0); };
-        const endAction = (e) => {
+        // Swipe & Unlock Logic
+        trigger.addEventListener('pointerdown', (e) => {
+            if (!isPowerOn) return;
+            isDragging = true;
+            startY = e.clientY;
+        });
+
+        window.addEventListener('pointerup', (e) => {
             if (!isDragging) return;
-            const endY = (e.clientY === undefined) ? e.changedTouches[0].clientY : e.clientY;
-            if (startY - endY > 50) {
-                if (!lockscreen.classList.contains('hidden_ls')) {
-                    lockscreen.classList.add('hidden_ls');
+            const endY = e.clientY;
+            if (startY - endY > 60) {
+                if (!lockscreen.classList.contains('unlocked-anim')) {
+                    // HyperOS Unlock Animation
+                    lockscreen.classList.add('unlocked-anim');
                     visualBar.classList.add('dark-bar');
                 } else {
+                    // Close App
                     appWindow.classList.remove('open');
+                    phone.classList.remove('app-open-active');
                 }
             }
             isDragging = false;
-        };
-
-        trigger.addEventListener('pointerdown', startAction);
-        window.addEventListener('pointerup', endAction);
+        });
 
         pwrBtn.addEventListener('click', () => {
             if (isPowerOn) {
                 appWindow.classList.remove('open');
-                lockscreen.classList.remove('hidden_ls');
-                display.classList.add('screen-off');
+                phone.classList.remove('app-open-active');
+                lockscreen.classList.remove('unlocked-anim');
+                document.getElementById('display-content').classList.add('screen-off');
                 visualBar.classList.remove('dark-bar');
                 isPowerOn = false;
             } else {
-                display.classList.remove('screen-off');
+                document.getElementById('display-content').classList.remove('screen-off');
                 isPowerOn = true;
             }
         });
