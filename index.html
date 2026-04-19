@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HyperOS Web</title>
+    <title>HyperOS Web - Instant Response</title>
     <style>
         :root {
             --phone-width: 300px;
@@ -12,7 +12,7 @@
             --icon-radius: 16px;
         }
 
-        /* 1. Kills scroll, blue highlights, and selection */
+        /* Prevent all browser-default highlights and scrolling */
         html, body {
             margin: 0;
             padding: 0;
@@ -30,7 +30,6 @@
             font-family: 'Inter', -apple-system, sans-serif;
         }
 
-        /* Power Button */
         .power-btn {
             position: absolute;
             right: -15px;
@@ -43,7 +42,6 @@
             z-index: 200;
         }
 
-        /* Phone Frame */
         #phone-container {
             width: var(--phone-width);
             height: var(--phone-height);
@@ -54,7 +52,7 @@
             overflow: hidden;
             box-shadow: 0 25px 50px rgba(0,0,0,0.8);
             transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s;
-            touch-action: none; /* Prevents browser gestures */
+            touch-action: none;
         }
 
         .screen-off {
@@ -63,7 +61,6 @@
             pointer-events: none;
         }
 
-        /* Punch Hole */
         .punch-hole {
             position: absolute;
             top: 12px;
@@ -77,7 +74,6 @@
             z-index: 100;
         }
 
-        /* Layers */
         .layer {
             position: absolute;
             width: 100%;
@@ -118,10 +114,9 @@
             align-items: center;
             justify-content: center;
             font-size: 22px;
-            cursor: default;
+            cursor: pointer;
         }
 
-        /* App Window & Transitioning Border Radius */
         #app-window {
             position: absolute;
             top: 0;
@@ -149,13 +144,12 @@
             border-radius: 0px;
         }
 
-        /* Swipe Bar */
         .nav-handle-container {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 50px;
+            height: 60px;
             z-index: 150;
             display: flex;
             justify-content: center;
@@ -173,28 +167,27 @@
         }
 
         .dark-bar { background: rgba(0,0,0,0.4); }
-        
         .hidden_ls { transform: translateY(-100%); pointer-events: none; }
     </style>
 </head>
 <body>
 
     <div style="position: relative;">
-        <div class="power-btn" onclick="togglePower()"></div>
+        <div class="power-btn" id="pwr-btn"></div>
 
         <div id="phone-container">
             <div class="punch-hole"></div>
             
             <div id="lockscreen" class="layer">
                 <h1 style="font-size: 2.8rem; margin: 0; font-weight: 200;">12:00</h1>
-                <p style="opacity: 0.7; font-size: 0.9rem;">Swipe up to unlock</p>
+                <p style="opacity: 0.7; font-size: 0.9rem;">Swipe up</p>
             </div>
 
             <div id="homescreen" class="layer">
-                <div class="app-icon" onclick="openApp(this, 'Photos', '#ff5722')">🖼️</div>
-                <div class="app-icon" onclick="openApp(this, 'Weather', '#03a9f4')">☁️</div>
-                <div class="app-icon" onclick="openApp(this, 'Chat', '#4caf50')">💬</div>
-                <div class="app-icon" onclick="openApp(this, 'Music', '#9c27b0')">🎶</div>
+                <div class="app-icon" data-name="Photos" data-color="#ff5722">🖼️</div>
+                <div class="app-icon" data-name="Weather" data-color="#03a9f4">☁️</div>
+                <div class="app-icon" data-name="Chat" data-color="#4caf50">💬</div>
+                <div class="app-icon" data-name="Music" data-color="#9c27b0">🎶</div>
             </div>
 
             <div id="app-window">
@@ -214,23 +207,45 @@
         const appWindow = document.getElementById('app-window');
         const visualBar = document.getElementById('visual-bar');
         const trigger = document.getElementById('nav-trigger');
+        const pwrBtn = document.getElementById('pwr-btn');
         
         let isPowerOn = true;
         let startY = 0;
         let isDragging = false;
 
-        // Interaction Logic
+        // --- INSTANT APP OPENING ---
+        document.querySelectorAll('.app-icon').forEach(icon => {
+            icon.addEventListener('pointerdown', (e) => {
+                if (!isPowerOn || !lockscreen.classList.contains('hidden_ls')) return;
+                
+                const name = icon.getAttribute('data-name');
+                const color = icon.getAttribute('data-color');
+                
+                const rect = icon.getBoundingClientRect();
+                const phoneRect = phone.getBoundingClientRect();
+                
+                // Set zoom origin to icon position
+                const x = ((rect.left + rect.width/2) - phoneRect.left) / phoneRect.width * 100;
+                const y = ((rect.top + rect.height/2) - phoneRect.top) / phoneRect.height * 100;
+                
+                appWindow.style.transformOrigin = `${x}% ${y}%`;
+                appWindow.style.backgroundColor = color;
+                document.getElementById('app-title').innerText = name;
+                appWindow.classList.add('open');
+            });
+        });
+
+        // --- SWIPE GESTURE LOGIC ---
         const startAction = (e) => {
             if (!isPowerOn) return;
             isDragging = true;
-            startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            trigger.style.cursor = 'grabbing';
+            startY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
         };
 
         const moveAction = (e) => {
             if (!isDragging) return;
-            let currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            let diff = startY - currentY;
+            const currentY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
+            const diff = startY - currentY;
             if (diff > 0) {
                 visualBar.style.transform = `translateY(-${Math.min(diff/3, 25)}px)`;
             }
@@ -238,50 +253,27 @@
 
         const endAction = (e) => {
             if (!isDragging) return;
-            let endY = e.type.includes('touch') ? e.changedTouches[0].clientY : e.clientY;
+            const endY = (e.clientY === undefined) ? e.changedTouches[0].clientY : e.clientY;
             
             if (startY - endY > 60) {
-                handleSwipeUp();
+                if (!lockscreen.classList.contains('hidden_ls')) {
+                    lockscreen.classList.add('hidden_ls');
+                    visualBar.classList.add('dark-bar');
+                } else if (appWindow.classList.contains('open')) {
+                    appWindow.classList.remove('open');
+                }
             }
             
             visualBar.style.transform = `translateY(0)`;
             isDragging = false;
-            trigger.style.cursor = 'grab';
         };
 
-        // Attach listeners to trigger and window for global release
-        trigger.addEventListener('mousedown', startAction);
-        window.addEventListener('mousemove', moveAction);
-        window.addEventListener('mouseup', endAction);
+        trigger.addEventListener('pointerdown', startAction);
+        window.addEventListener('pointermove', moveAction);
+        window.addEventListener('pointerup', endAction);
 
-        trigger.addEventListener('touchstart', startAction, {passive: true});
-        trigger.addEventListener('touchmove', moveAction, {passive: true});
-        trigger.addEventListener('touchend', endAction);
-
-        function handleSwipeUp() {
-            if (!lockscreen.classList.contains('hidden_ls')) {
-                lockscreen.classList.add('hidden_ls');
-                visualBar.classList.add('dark-bar');
-            } else if (appWindow.classList.contains('open')) {
-                appWindow.classList.remove('open');
-            }
-        }
-
-        function openApp(el, name, color) {
-            const rect = el.getBoundingClientRect();
-            const phoneRect = phone.getBoundingClientRect();
-            
-            // Calc non-centered zoom origin
-            const x = ((rect.left + rect.width/2) - phoneRect.left) / phoneRect.width * 100;
-            const y = ((rect.top + rect.height/2) - phoneRect.top) / phoneRect.height * 100;
-            
-            appWindow.style.transformOrigin = `${x}% ${y}%`;
-            appWindow.style.backgroundColor = color;
-            document.getElementById('app-title').innerText = name;
-            appWindow.classList.add('open');
-        }
-
-        function togglePower() {
+        // --- POWER BUTTON ---
+        pwrBtn.addEventListener('click', () => {
             if (isPowerOn) {
                 appWindow.classList.remove('open');
                 lockscreen.classList.remove('hidden_ls');
@@ -292,7 +284,7 @@
                 phone.classList.remove('screen-off');
                 isPowerOn = true;
             }
-        }
+        });
     </script>
 </body>
 </html>
