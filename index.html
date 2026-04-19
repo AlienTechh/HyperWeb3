@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HyperOS Pro - Final Bezel & Icon Fix</title>
+    <title>HyperOS Pro - True Bezel & Icon Fix</title>
     <style>
         :root {
             --phone-width: 350px; 
@@ -12,7 +12,7 @@
             --fluid-bezier: cubic-bezier(0.25, 1, 0.3, 1);
             --anim-speed: 0.85s; 
             --glass: rgba(255, 255, 255, 0.15);
-            --inner-radius: 32px;
+            --inner-radius: 34px;
         }
 
         html, body {
@@ -20,7 +20,7 @@
             overflow: hidden; overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
             user-select: none; -webkit-user-select: none;
-            background: #0a0a0a; display: flex;
+            background: #080808; display: flex;
             justify-content: center; align-items: center;
             font-family: 'Inter', -apple-system, sans-serif;
         }
@@ -39,10 +39,9 @@
         .power-btn {
             position: absolute; right: 10px; top: 160px;
             width: 4px; height: 55px; background: #222;
-            border-radius: 0 4px 4px 0; cursor: pointer; z-index: 2000;
+            border-radius: 0 4px 4px 0; cursor: pointer; z-index: 3000;
         }
 
-        /* THE SCREEN BOX */
         #phone-container {
             width: 87.5%; 
             height: 93.8%;
@@ -54,33 +53,33 @@
             isolation: isolate;
         }
 
-        /* FIXED BEZELS: Placed outside display-content so they never hide */
-        .bezel-overlay {
+        /* FIXED BEZELS: Sitting on top of everything to ensure they never hide */
+        .bezel-fix {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             border-radius: var(--inner-radius);
-            pointer-events: none;
-            z-index: 1000;
-            box-shadow: inset 0 0 0 7px #000, 
-                        inset 0 0 15px rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.05);
+            pointer-events: none; /* Allows interacting with apps underneath */
+            z-index: 2500;
+            /* Thicker black inset to create a permanent border */
+            box-shadow: inset 0 0 0 8px #000, 
+                        inset 0 0 20px rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.08);
         }
 
         #display-content { width: 100%; height: 100%; transition: opacity 0.4s ease; }
         .screen-off { opacity: 0; pointer-events: none; }
 
         .punch-hole {
-            position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+            position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
             width: 14px; height: 14px; background: #000; border-radius: 50%; z-index: 100;
         }
 
         .status-bar {
-            position: absolute; top: 14px; width: 100%;
-            padding: 0 25px; display: flex; justify-content: space-between;
+            position: absolute; top: 16px; width: 100%;
+            padding: 0 28px; display: flex; justify-content: space-between;
             color: white; font-size: 10px; font-weight: 500; z-index: 90; box-sizing: border-box;
         }
 
-        /* Wallpaper Zoom/Blur */
         .wallpaper-container {
             position: absolute; width: 100%; height: 100%;
             background: #000; overflow: hidden;
@@ -111,11 +110,11 @@
 
         .unlocked-anim { transform: scale(1.4) !important; opacity: 0 !important; pointer-events: none; }
 
-        #homescreen { z-index: 40; padding: 60px 20px; box-sizing: border-box; }
+        #homescreen { z-index: 40; padding: 60px 25px; box-sizing: border-box; }
         .app-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
 
         .dock {
-            position: absolute; bottom: 18px; left: 15px; right: 15px;
+            position: absolute; bottom: 20px; left: 15px; right: 15px;
             height: 65px; background: rgba(255,255,255,0.12);
             backdrop-filter: blur(25px); border-radius: 24px;
             display: flex; justify-content: space-evenly; align-items: center;
@@ -127,13 +126,13 @@
             display: flex; align-items: center; justify-content: center;
             cursor: pointer; transition: transform 0.2s;
             border: 1px solid rgba(255,255,255,0.1);
-            overflow: hidden;
+            overflow: hidden; box-sizing: border-box;
         }
 
-        /* FIXED: Messages Icon Size */
+        /* FIXED: Messages Icon Scale */
         .app-icon.msg-special { 
             background: #fff; 
-            padding: 13px; /* Reduced visual size of the PNG logo */
+            padding: 14px; /* Increased padding to make the logo look consistent with others */
         }
         .app-icon img { width: 100%; height: 100%; object-fit: contain; }
         .app-icon:active { transform: scale(0.85); }
@@ -151,7 +150,7 @@
 
         .nav-handle-container {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 40px;
-            z-index: 1500; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 10px;
+            z-index: 2800; display: flex; justify-content: center; align-items: flex-end; padding-bottom: 12px;
         }
         .nav-bar { width: 90px; height: 4px; background: rgba(255,255,255,0.5); border-radius: 10px; }
         .dark-bar { background: rgba(0,0,0,0.25); }
@@ -162,7 +161,7 @@
     <div id="phone-wrapper">
         <div class="power-btn" id="pwr-btn"></div>
         <div id="phone-container">
-            <div class="bezel-overlay"></div>
+            <div class="bezel-fix"></div>
             
             <div id="display-content">
                 <div class="punch-hole"></div>
@@ -199,7 +198,7 @@
                 <div id="app-window">
                     <div id="app-content" style="padding: 70px 25px; color:#000;">
                         <h2 id="app-title">Settings</h2>
-                        <p>Perfectly scaled Messages app and persistent bezels.</p>
+                        <p>Bezels are fixed at z-index 2500. Messages padding set to 14px.</p>
                     </div>
                 </div>
 
