@@ -313,13 +313,15 @@
                 
                 const appName = icon.getAttribute('data-name');
                 
-                // FORCE RESET: Remove 'open' class immediately so transition can restart
+                // Reopen Fix: Force instant state reset
                 appWindow.classList.remove('open');
-                // Trigger a "reflow" to make the browser realize the app is gone
                 void appWindow.offsetWidth; 
 
                 if (appName === "Settings") {
                     settingsUI.style.display = "block";
+                    // FORCE SETTINGS UI RESET: ensure it doesn't hide during reopen
+                    document.getElementById('main-settings').classList.add('fade-in');
+                    document.getElementById('main-settings').classList.remove('fade-out');
                 } else {
                     settingsUI.style.display = "none";
                 }
@@ -331,7 +333,6 @@
                 
                 appWindow.style.transformOrigin = `${x}% ${y}%`;
 
-                // Re-open instantly
                 appWindow.classList.add('open');
                 phone.classList.add('app-open-active');
                 visualBar.classList.add('dark-bar');
@@ -355,8 +356,11 @@
                 } else {
                     appWindow.classList.remove('open');
                     phone.classList.remove('app-open-active');
+                    
+                    // Logic to handle settings UI after close
                     setTimeout(() => {
-                        if(!appWindow.classList.contains('open')) {
+                        // Check if it's actually still closed before resetting UI
+                        if (!appWindow.classList.contains('open')) {
                             document.getElementById('about-phone-page').classList.replace('fade-in', 'fade-out');
                             document.getElementById('main-settings').classList.replace('fade-out', 'fade-in');
                         }
